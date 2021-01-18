@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class PokemonEntity extends Equatable{
+class PokemonModel extends Equatable{
   int id;
   String name;
   String image;
@@ -8,7 +8,7 @@ class PokemonEntity extends Equatable{
   num height;
   num weight;
 
-  PokemonEntity({
+  PokemonModel({
    this.id,
     this.name,
     this.types,

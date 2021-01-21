@@ -21,7 +21,7 @@ void main() {
       () async {
     //->arrange
     final List<PokemonModel> pokemonsMock = List.empty();
-    when(mockPokemonRepository.getAllPaged())
+    when(mockPokemonRepository.getAllPaged(offset: anyNamed("offset"), limit: anyNamed("limit")))
         .thenAnswer((_) async => Right(pokemonsMock));
 
     //->act
@@ -30,7 +30,7 @@ void main() {
     //->assert
     expect(result, Right(pokemonsMock));
 
-    verify(mockPokemonRepository.getAllPaged());
+    verify(mockPokemonRepository.getAllPaged(offset: 0, limit: 20));
     verifyNoMoreInteractions(mockPokemonRepository);
   });
 
@@ -40,17 +40,17 @@ void main() {
     //->arrange
     final List<PokemonModel> pokemonsMock = List.empty();
     final ParamGetAllPokemonPagged params =
-        ParamGetAllPokemonPagged(offset: 10, limit: 20);
-    when(mockPokemonRepository.getAllPaged(offset: any, limit: any))
+        ParamGetAllPokemonPagged(offset: 15, limit: 25);
+    when(mockPokemonRepository.getAllPaged(offset: anyNamed("offset"), limit: anyNamed("limit")))
         .thenAnswer((_) async => Right(pokemonsMock));
 
     //->act
-    final result = await getPokemonUseCase.call();
+    final result = await getPokemonUseCase.call(params : params);
 
     //->assert
     expect(result, Right(pokemonsMock));
 
-    verify(mockPokemonRepository.getAllPaged(offset: 10, limit: 20));
+    verify(mockPokemonRepository.getAllPaged(offset: 15, limit: 25));
     verifyNoMoreInteractions(mockPokemonRepository);
   });
 }

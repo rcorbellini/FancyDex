@@ -3,6 +3,7 @@ import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+
   test('should be a subclass of Pokemon entity', () async {
     //->arrange
 
@@ -11,4 +12,5 @@ void main() {
     //assert
     expect(PokemonEntity(), isA<PokemonModel>());
   });
+
 }

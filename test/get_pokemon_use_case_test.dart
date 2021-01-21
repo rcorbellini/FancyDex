@@ -1,8 +1,7 @@
-
 import 'package:dartz/dartz.dart';
-import 'package:fancy_dex/core/use_case.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
+import 'package:fancy_dex/domain/use_cases/get_pokemon_use_case.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 
@@ -17,68 +16,61 @@ void main() {
     getPokemonUseCase = GetPokemonUseCase(mockPokemonRepository);
   });
 
-
   test('should use repository.getPokemonByName to get pokemon by name',
-          () async {
-        //->arrange
-        final PokemonModel pokemonMock = null;
-        final Filter filter =  Filter(pokemonName : "Ditto");
-        when(mockPokemonRepository.getPokemonByName(any))
-            .thenAnswer((_) async => Right(pokemonMock));
+      () async {
+    //->arrange
+    final PokemonModel pokemonMock = null;
+    final String pokemonName = "Ditto";
+    final FilterGetPokemon filter = FilterGetPokemon(pokemonName: pokemonName);
+    when(mockPokemonRepository.getPokemonByName(any))
+        .thenAnswer((_) async => Right(pokemonMock));
 
-        //->act
-        final result = await getPokemonUseCase.call(filter: filter);
+    //->act
+    final result = await getPokemonUseCase.call(params: filter);
 
-        //->assert
-        expect(result, Right(pokemonMock));
+    //->assert
+    expect(result, Right(pokemonMock));
 
-        verify(mockPokemonRepository.getPokemonByName(pokemonName));
-        verifyNoMoreInteractions(mockPokemonRepository);
-      });
+    verify(mockPokemonRepository.getPokemonByName(pokemonName));
+    verifyNoMoreInteractions(mockPokemonRepository);
+  });
 
-  test('should use repository.getPokemonById to get pokemon by id',
-          () async {
-        //->arrange
-        final PokemonModel pokemonMock = null;
-        final Filter filter =  Filter(id : 1);
-        when(mockPokemonRepository.getPokemonById(any))
-            .thenAnswer((_) async => Right(pokemonMock));
+  test('should use repository.getPokemonById to get pokemon by id', () async {
+    //->arrange
+    final PokemonModel pokemonMock = null;
+    final int pokemonId = 1;
+    final FilterGetPokemon filter = FilterGetPokemon(pokemonId: 1);
+    when(mockPokemonRepository.getPokemonById(any))
+        .thenAnswer((_) async => Right(pokemonMock));
 
-        //->act
-        final result = await getPokemonUseCase.call(filter: filter);
+    //->act
+    final result = await getPokemonUseCase.call(params: filter);
 
-        //->assert
-        expect(result, Right(pokemonMock));
+    //->assert
+    expect(result, Right(pokemonMock));
 
-        verify(mockPokemonRepository.getPokemonByName(pokemonName));
-        verifyNoMoreInteractions(mockPokemonRepository);
-      });
+    verify(mockPokemonRepository.getPokemonById(1));
+    verifyNoMoreInteractions(mockPokemonRepository);
+  });
 
-  test('Filter must be send',
-          () async {
-        //->arrange
+  test('Filter must be send', () async {
+    //->arrange
 
-        //->act
-        final result = await getPokemonUseCase.call();
+    //->act
 
-        //->assert
-        expect(() {
-          assert(false);
-        }, throwsAssertionError);
-      });
+    //->assert
+    expect(getPokemonUseCase.call, throwsAssertionError);
+  });
 
+  test('Filter must have either name, id.', () async {
+    //->arrange
+    final FilterGetPokemon filter = FilterGetPokemon();
 
-  test('Filter must have either name, id.',
-          () async {
-        //->arrange
-        final Filter filter =  Filter();
+    //->act
 
-        //->act
-        final result = await getPokemonUseCase.call(filter : filter);
-
-        //->assert
-        expect(() {
-          assert(false);
-        }, throwsAssertionError);
-      });
+    //->assert
+    expect(() {
+      getPokemonUseCase.call(params: filter);
+    }, throwsArgumentError);
+  });
 }

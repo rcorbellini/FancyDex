@@ -1,16 +1,17 @@
 import 'package:equatable/equatable.dart';
 
-class PokemonModel extends Equatable{
-  int id;
-  String name;
-  String image;
-  List types;
-  num height;
-  num weight;
+class PokemonModel extends Equatable {
+  final int id;
+  final String name;
+  final String image;
+  final List types;
+  final num height;
+  final num weight;
 
   PokemonModel({
-   this.id,
+    this.id,
     this.name,
+    this.image,
     this.types,
     this.height,
     this.weight,
@@ -18,11 +19,10 @@ class PokemonModel extends Equatable{
 
   @override
   List<Object> get props => [
-    id,
-    name,
-    types,
-    weight,
-    height,
-  ];
-
+        id,
+        name,
+        types,
+        weight,
+        height,
+      ];
 }

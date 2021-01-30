@@ -7,7 +7,7 @@ abstract class PokemonRemoteDataSource {
 
   Future<PokemonEntity> getRandomPokemon();
 
-  Future<PokemonEntity> getAllPaged({int offset = 0, int limit = 20});
+  Future<List<PokemonEntity>> getAllPaged({int offset = 0, int limit = 20});
 
   //Future<TypeEntity> getAllTypes();
 }

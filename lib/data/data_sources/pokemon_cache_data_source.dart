@@ -5,7 +5,10 @@ abstract class PokemonCacheDataSource {
 
   Future<void> cacheDetailPokemon(PokemonEntity pokemon);
 
-  Future<List<PokemonEntity>> getCachedPokemons();
+  Future<List<PokemonEntity>> getCachedPokemons(
+      {int offset = 0, int limit = 20});
 
   Future<PokemonEntity> getCachedPokemonByName(String name);
+
+  Future<PokemonEntity> getCachedPokemonById(int id);
 }

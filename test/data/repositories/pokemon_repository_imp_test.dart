@@ -61,7 +61,7 @@ void main() {
 
   group('getPokemonByName', () {
     final name = "Ditto";
-    final pokemonModel = PokemonEntity(
+    final pokemonEntity = PokemonEntity(
       id: 1,
       name: "Ditto",
       weight: 15,
@@ -69,7 +69,7 @@ void main() {
       types: [],
     );
 
-    final PokemonModel pokemonEntity = pokemonModel;
+    final PokemonModel pokemonModel = pokemonEntity;
 
     test('should verify if isConnect when call getbyname', () async {
       //arrange
@@ -119,14 +119,14 @@ void main() {
           'should return cached pokemon by name when is offline and cache exist',
           () async {
         //arrange
-        when(mockLocalDataSource.getCachedPokemons())
-            .thenAnswer((_) async => [pokemonEntity]);
+        when(mockLocalDataSource.getCachedPokemonByName(name))
+            .thenAnswer((_) async => pokemonEntity);
         //act
         final result = await repository.getPokemonByName(name);
         //assert
         verifyZeroInteractions(mockRemoteDataSource);
         verify(mockLocalDataSource.getCachedPokemonByName(name));
-        expect(result, Right(pokemonModel));
+        expect(result, Right<Error, PokemonModel>(pokemonModel));
       });
       test('should return CacheError when exception from cache are rised',
           () async {
@@ -145,7 +145,7 @@ void main() {
 
   group('getRandomPokemon', () {
     final random = 132;
-    final pokemonModel = PokemonModel(
+    final pokemonEntity = PokemonEntity(
       id: 1,
       name: "Ditto",
       weight: 15,
@@ -153,6 +153,7 @@ void main() {
       types: [],
     );
 
+    final PokemonModel pokemonModel = pokemonEntity;
     test('should verify if isConnected are call when getRandomPokemon',
         () async {
       //arrange
@@ -171,7 +172,7 @@ void main() {
         //->arrange
         when(mockRandom.nextInt(any)).thenReturn(random);
         when(mockRemoteDataSource.getPokemonById(any))
-            .thenAnswer((_) async => pokemonModel);
+            .thenAnswer((_) async => Future.value(pokemonEntity));
 
         //->act
         final result = await repository.getRandomPokemon();
@@ -187,7 +188,7 @@ void main() {
         verifyNever(mockLocalDataSource.getCachedPokemonByName(any));
         //use local just for cache
         verify(mockLocalDataSource.cacheDetailPokemon(pokemonModel));
-        verifyNoMoreInteractions(verifyNoMoreInteractions);
+        verifyNoMoreInteractions(mockLocalDataSource);
         expect(result, equals(Right(pokemonModel)));
       });
 
@@ -218,18 +219,18 @@ void main() {
         final cached =  [pokemonModel];
         final sizeCached = cached.length;
         when(mockRandom.nextInt(any)).thenReturn(random);
-        when(mockLocalDataSource.getCachedPokemons())
-            .thenAnswer((_) async => [pokemonModel]);
+        when(mockLocalDataSource.getCachedPokemonById(any))
+            .thenAnswer((_) async => Future.value(pokemonEntity));
         //act
         final result = await repository.getRandomPokemon();
         //assert
         //verify if are sorting with max of cached options
-        verify(mockRandom.nextInt(sizeCached-1));
-        verify(mockLocalDataSource.getCachedPokemons());
+        verify(mockRandom.nextInt(any));
+        verify(mockLocalDataSource.getCachedPokemonById(any));
 
         verifyZeroInteractions(mockRemoteDataSource);
 
-        expect(result, equals(Right(pokemonModel)));
+        expect(result, equals(Right<Error, PokemonModel>(pokemonModel)));
 
         expect(cached.contains(result.getOrElse(() => null)), isTrue);
       });

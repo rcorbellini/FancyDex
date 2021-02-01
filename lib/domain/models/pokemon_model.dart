@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class PokemonModel extends Equatable {
+class PokemonModel extends Equatable implements Comparable{
   final int id;
   final String name;
   final String image;
@@ -25,4 +25,9 @@ class PokemonModel extends Equatable {
         weight,
         height,
       ];
+
+  @override
+  int compareTo(other) {
+     return  other.id - id;
+  }
 }

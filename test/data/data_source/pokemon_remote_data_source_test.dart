@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:fancy_dex/core/exceptions.dart';
 import 'package:fancy_dex/data/data_sources/pokemon_remote_data_source.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
-import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';

@@ -32,16 +32,6 @@ main() {
       verify(memoryMock.add(pokemonEntity));
     });
 
-    test('should not add duplicate values', () async {
-      //arrange
-
-      //act
-      await localDataSource.cacheDetailPokemon(pokemonEntity);
-      await localDataSource.cacheDetailPokemon(pokemonEntity);
-
-      //assert
-      expect(memoryMock.length, equals(1));
-    });
   });
 
   group('cachePokemons', () {
@@ -60,16 +50,6 @@ main() {
       verify(memoryMock.addAll(pokemonsEntity));
     });
 
-    test('should not add duplicate list', () async {
-      //arrange
-      final sizeList = pokemonsEntity.length;
-      //act
-      await localDataSource.cachePokemons(pokemonsEntity);
-      await localDataSource.cachePokemons(pokemonsEntity);
-
-      //assert
-      expect(memoryMock.length, equals(sizeList));
-    });
   });
 
   group('getCachedPokemonByName', () {
@@ -79,7 +59,7 @@ main() {
     test('Should return the pokemonEntity when getCachedPokemonByName called',
         () async {
       //arrange
-      when(memoryMock.firstWhere(any)).thenAnswer((_) => pokemonEntity);
+      when(memoryMock.firstWhere(any, orElse: anyNamed('orElse'))).thenAnswer((_) => pokemonEntity);
       when(memoryMock.where(any)).thenAnswer((_) => [pokemonEntity]);
 
       //act
@@ -109,11 +89,11 @@ main() {
     test('Should return the pokemonEntity when getCachedPokemonById called',
         () async {
       //arrange
-      when(memoryMock.firstWhere(any)).thenAnswer((_) => pokemonEntity);
+      when(memoryMock.firstWhere(any, orElse: anyNamed('orElse'))).thenAnswer((_) => pokemonEntity);
       when(memoryMock.where(any)).thenAnswer((_) => [pokemonEntity]);
 
       //act
-      final result = localDataSource.getCachedPokemonById(id);
+      final result = await localDataSource.getCachedPokemonById(id);
 
       //assert
       expect(result, equals(pokemonEntity));

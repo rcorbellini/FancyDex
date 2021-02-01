@@ -14,40 +14,36 @@ abstract class PokemonCacheDataSource {
   Future<PokemonEntity> getCachedPokemonById(int id);
 }
 
-
-class PokemonCacheDataSourceImp extends PokemonCacheDataSource{
+class PokemonCacheDataSourceImp extends PokemonCacheDataSource {
   final CacheMemory<PokemonEntity> memory;
 
   PokemonCacheDataSourceImp(this.memory);
 
   @override
-  Future<void> cacheDetailPokemon(PokemonEntity pokemon) {
-    // TODO: implement cacheDetailPokemon
-    throw UnimplementedError();
+  Future<void> cacheDetailPokemon(PokemonEntity pokemon) async {
+    memory.add(pokemon);
   }
 
   @override
-  Future<void> cachePokemons(List<PokemonEntity> pokemons) {
-    // TODO: implement cachePokemons
-    throw UnimplementedError();
+  Future<void> cachePokemons(List<PokemonEntity> pokemons) async {
+    memory.addAll(pokemons);
   }
 
   @override
-  Future<PokemonEntity> getCachedPokemonById(int id) {
-    // TODO: implement getCachedPokemonById
-    throw UnimplementedError();
+  Future<PokemonEntity> getCachedPokemonById(int id) async {
+    return memory.firstWhere((pokemon) => pokemon.id == id, orElse: () => null);
   }
 
   @override
-  Future<PokemonEntity> getCachedPokemonByName(String name) {
-    // TODO: implement getCachedPokemonByName
-    throw UnimplementedError();
+  Future<PokemonEntity> getCachedPokemonByName(String name) async {
+    return memory.firstWhere((pokemon) => pokemon.name == name,
+        orElse: () => null);
   }
 
   @override
-  Future<List<PokemonEntity>> getCachedPokemons({int offset = 0, int limit = 20}) {
-    // TODO: implement getCachedPokemons
-    throw UnimplementedError();
+  Future<List<PokemonEntity>> getCachedPokemons(
+      {int offset = 0, int limit = 20}) async {
+    final possibleIDs = List<int>.generate(20, (int index) => index + 1 + offset);
+    return memory.where((pokemon) => possibleIDs.contains(pokemon.id)) ?? List.empty();
   }
-  
 }

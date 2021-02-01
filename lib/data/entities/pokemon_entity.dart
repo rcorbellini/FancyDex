@@ -38,6 +38,12 @@ class PokemonEntity extends PokemonModel {
         'types': this.types,
       };
 }
+
 final prefixId = 'pokemon/';
-resolveIdByUrl(String url) =>
-    int.parse(url.substring(url.indexOf(prefixId) + prefixId.length, url.lastIndexOf('/')));
+resolveIdByUrl(String url) {
+  if (url == null) {
+    return null;
+  }
+  return int.parse(url.substring(
+      url.indexOf(prefixId) + prefixId.length, url.lastIndexOf('/')));
+}

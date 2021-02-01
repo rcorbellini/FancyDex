@@ -94,15 +94,60 @@ main() {
     });
 
     test('should throw RemoteException when a 500 remote status code happen',
-        () async {
+            () async {
+          //arrange
+          when(mockHttpClient.get(any, headers: anyNamed('headers')))
+              .thenAnswer((_) async => http.Response('Remote Error', 500));
+
+          //act
+          final getPokemonById = remoteDataSource.getPokemonById;
+          //assert
+          expect(() => getPokemonById(pokemonId), throwsA(isA<RemoteException>()));
+        });
+  });
+
+
+
+  group('getAllPaged', () {
+    final offset = 0;
+    final limit = 20;
+    final result = json.decode(pokemonsJsonsOffset0Limit20)['results'] as Iterable;
+    final pokemonsEntity = result.map((pokemonMap) => PokemonEntity.fromJson(pokemonMap)).toList();
+
+    test('Should hit pokeapi to GET (all Paged) by offset + limit (using json headers)', () async {
       //arrange
       when(mockHttpClient.get(any, headers: anyNamed('headers')))
-          .thenAnswer((_) async => http.Response('Remote Error', 500));
+          .thenAnswer((_) async => http.Response(pokemonsJsonsOffset0Limit20, 200));
 
       //act
-      final getPokemonById = remoteDataSource.getPokemonById;
+      remoteDataSource.getAllPaged(offset: offset, limit: limit);
+
       //assert
-      expect(() => getPokemonById(pokemonId), throwsA(isA<RemoteException>()));
+      verify(mockHttpClient.get(
+          'https://pokeapi.co/api/v2/pokemon/?offset=$offset&limit=$limit',
+          headers: {'content-type': 'application/json'}));
     });
+
+    test('should return a pokemonsEntity when success', () async {
+      //arrange
+      when(mockHttpClient.get(any, headers: anyNamed('headers')))
+          .thenAnswer((_) async => http.Response(pokemonsJsonsOffset0Limit20, 200));
+      //act
+      final result = await remoteDataSource.getAllPaged(offset: offset,limit: limit);
+      //assert
+      expect(result, equals(pokemonsEntity));
+    });
+
+    test('should throw RemoteException when a 500 remote status code happen',
+            () async {
+          //arrange
+          when(mockHttpClient.get(any, headers: anyNamed('headers')))
+              .thenAnswer((_) async => http.Response('Remote Error', 500));
+
+          //act
+          final getAllPaged = remoteDataSource.getAllPaged;
+          //assert
+          expect(() => getAllPaged(offset:offset, limit:limit), throwsA(isA<RemoteException>()));
+        });
   });
 }

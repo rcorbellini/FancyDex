@@ -36,9 +36,9 @@ class PokemonRemoteDataSourceImpl implements PokemonRemoteDataSource {
         await client.get(url, headers: {'content-type': 'application/json'});
 
     if (response.statusCode == 200) {
-      return json
-          .decode(response.body)
-          .map((item) => PokemonEntity.fromJson(item));
+      final result = json.decode(response.body)['results'] as Iterable;
+
+      return result.map((item) => PokemonEntity.fromJson(item)).toList();
     } else {
       throw RemoteException();
     }

@@ -13,4 +13,14 @@ void main() {
     expect(PokemonEntity(), isA<PokemonModel>());
   });
 
+
+  test('should set id by url when id is null and url has value', () async {
+    //->arrange
+    final url = 'https://pokeapi.co/api/v2/pokemon/251/';
+    //->act
+    final pokemon = PokemonEntity(id: null, url: url);
+
+    //assert
+    expect(pokemon.id, equals(251));
+  });
 }

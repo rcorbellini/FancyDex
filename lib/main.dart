@@ -1,3 +1,4 @@
+import 'package:fancy_dex/presentation/home/pages/home_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -7,6 +8,10 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return MaterialApp(
+        home: Scaffold(
+      body:  HomePage(),
+
+    )) ;
   }
 }

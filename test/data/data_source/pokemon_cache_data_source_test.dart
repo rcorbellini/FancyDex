@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:fancy_dex/core/cache_memory.dart';
+import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
 import 'package:fancy_dex/data/data_sources/pokemon_cache_data_source.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +8,7 @@ import 'package:mockito/mockito.dart';
 
 import 'pokemon_json.dart';
 
-class MemoryMock extends Mock implements CacheMemory<PokemonEntity> {}
+class MemoryMock extends Mock implements SortedCacheMemory<PokemonEntity> {}
 
 main() {
   PokemonCacheDataSourceImp localDataSource;

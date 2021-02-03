@@ -1,4 +1,4 @@
-import 'package:fancy_dex/core/cache_memory.dart';
+import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
 
 abstract class PokemonCacheDataSource {
@@ -15,7 +15,7 @@ abstract class PokemonCacheDataSource {
 }
 
 class PokemonCacheDataSourceImp extends PokemonCacheDataSource {
-  final CacheMemory<PokemonEntity> memory;
+  final SortedCacheMemory<PokemonEntity> memory;
 
   PokemonCacheDataSourceImp(this.memory);
 

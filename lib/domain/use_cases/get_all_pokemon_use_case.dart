@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
-import 'package:fancy_dex/core/errors.dart';
-import 'package:fancy_dex/core/use_case.dart';
+import 'package:fancy_dex/core/errors/errors.dart';
+import 'package:fancy_dex/core/architecture/use_case.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
 

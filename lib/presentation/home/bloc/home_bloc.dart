@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:fancy_dex/core/cache_memory.dart';
-import 'package:fancy_dex/core/errors.dart';
+import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
+import 'package:fancy_dex/core/errors/errors.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
-import 'package:fancy_dex/presentation/base_bloc.dart';
+import 'package:fancy_dex/core/architecture/base_bloc.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
 import 'package:fancy_dex/presentation/home/models/pokemon_presentation.dart';
@@ -17,6 +17,7 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   final statusKey = 'status';
 
   HomeBloc({@required this.pokemonRepository, Fancy fancy}) : super(fancy);
+
 
   @protected
   @override
@@ -50,7 +51,7 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   }
 
   ListLoaded get currentListLoaded =>
-      map[statusPokemonKey] as ListLoaded ?? ListLoaded(CacheMemory());
+      map[statusPokemonKey] as ListLoaded ?? ListLoaded(SortedCacheMemory());
 
   void _loadMorePokemons() async {
     _dispatchLoading();

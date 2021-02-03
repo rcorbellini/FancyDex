@@ -1,9 +1,9 @@
 import 'dart:math';
 
 import 'package:dartz/dartz.dart';
-import 'package:fancy_dex/core/errors.dart';
-import 'package:fancy_dex/core/exceptions.dart';
-import 'package:fancy_dex/core/network_status.dart';
+import 'package:fancy_dex/core/errors/errors.dart';
+import 'package:fancy_dex/core/errors/exceptions.dart';
+import 'package:fancy_dex/core/utils/network_status.dart';
 import 'package:fancy_dex/data/data_sources/pokemon_cache_data_source.dart';
 import 'package:fancy_dex/data/data_sources/pokemon_remote_data_source.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';

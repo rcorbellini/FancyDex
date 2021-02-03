@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dartz/dartz.dart';
-import 'package:fancy_dex/core/errors.dart';
+import 'package:fancy_dex/core/errors/errors.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_bloc.dart';
@@ -161,6 +161,7 @@ void main() {
     pokemonsEntity
         .map((pokemonModel) => PokemonPresentation.fromModel(pokemonModel))
         .toList();
+
 
     test('when dispatched event, repository must be called', () async {
       //arrange

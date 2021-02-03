@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fancy_dex/core/cache_memory.dart';
+import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_bloc.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
@@ -90,7 +90,7 @@ class _HomePageState extends State<HomePage> {
     return Text('Erro aconteceu! tente novamente com internet.');
   }
 
-  Widget _buildPokemonList(CacheMemory<PokemonPresentation> pokemons) {
+  Widget _buildPokemonList(SortedCacheMemory<PokemonPresentation> pokemons) {
     return ListView.builder(
       itemBuilder: (BuildContext context, int index) {
         return _buildPokemonItem(pokemons.elementAt(index));

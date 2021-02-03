@@ -1,4 +1,4 @@
-import 'package:fancy_dex/presentation/base_bloc.dart';
+import 'package:fancy_dex/core/architecture/base_bloc.dart';
 import 'package:fancy_stream/fancy_stream.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';

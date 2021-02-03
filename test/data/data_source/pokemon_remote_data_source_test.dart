@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:fancy_dex/core/exceptions.dart';
+import 'package:fancy_dex/core/errors/exceptions.dart';
 import 'package:fancy_dex/data/data_sources/pokemon_remote_data_source.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
 import 'package:http/http.dart' as http;

@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
-import 'package:fancy_dex/core/cache_memory.dart';
+import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
 import 'package:fancy_dex/presentation/home/models/pokemon_presentation.dart';
 
 abstract class HomeStatus extends Equatable{}
 
 class ListLoaded extends HomeStatus {
-  final CacheMemory<PokemonPresentation> pokemons;
+  final SortedCacheMemory<PokemonPresentation> pokemons;
 
   ListLoaded(this.pokemons);
 

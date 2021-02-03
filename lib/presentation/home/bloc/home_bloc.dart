@@ -44,8 +44,9 @@ class HomeBloc extends BaseBloc<HomeEvent> {
     result.fold(_dispatchError, _dispatchPokemonAsList);
   }
 
-  //TODO move to repos
+  ///da pra melhorar movendo para trás de um repository
   int _offset = 0;
+
   void _loadMorePokemons() async {
     _dispatchLoading();
 

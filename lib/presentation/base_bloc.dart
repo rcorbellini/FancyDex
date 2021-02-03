@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:fancy_stream/fancy_stream.dart';
 
-abstract class BaseBloc<Event> {
-  final Fancy fancy;
+abstract class BaseBloc<Event> extends FancyDelegate {
 
-  BaseBloc(this.fancy) {
+  BaseBloc(Fancy fancy) : super(fancy: fancy) {
     init();
   }
 
@@ -14,19 +11,4 @@ abstract class BaseBloc<Event> {
   }
 
   void handleEvents(Event event);
-
-  ///
-  ///Delegation
-  ///
-  StreamSubscription<T> listenOn<T>(void Function(T) onData, {String key}) =>
-      fancy.listenOn<T>(onData, key: key);
-
-  void dispatchOn<T>(T value, {String key}) =>
-      fancy.dispatchOn<T>(value, key: key);
-
-  Stream<T> streamOf<T>({Object key}) => fancy.streamOf<T>(key: key);
-
-  void dispose() => fancy.dispose();
-
-  Map<String, dynamic> get map => fancy.map;
 }

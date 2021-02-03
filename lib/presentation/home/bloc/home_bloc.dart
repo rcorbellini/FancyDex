@@ -13,7 +13,7 @@ class HomeBloc extends BaseBloc<HomeEvent> {
 
   HomeBloc({@required this.pokemonRepository, Fancy fancy}) : super(fancy);
 
-  //@protected
+  @protected
   @override
   Future<void> handleEvents(HomeEvent homeEvent) async {
     if (homeEvent is PokemonByName) {
@@ -26,7 +26,7 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   }
 
   ///---------------
-  /// Events session
+  /// Handler Events session
   ///---------------
   void _loadPokemonByName(String name) async {
     _dispatchLoading();
@@ -58,11 +58,11 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   }
 
   ///-----------------
-  /// Dispatch Session
+  /// Dispatch Status Session
   ///-----------------
-  void _dispatchError(Error _) => _dispatch(ListError());
+  void _dispatchError(Error _) => _dispatchStatus(ListError());
 
-  void _dispatchLoading() => _dispatch(ListLoading());
+  void _dispatchLoading() => _dispatchStatus(ListLoading());
 
   void _dispatchPokemonAsList(PokemonModel pokemonModel) =>
       _dispatchListPokemons([pokemonModel]);
@@ -72,8 +72,8 @@ class HomeBloc extends BaseBloc<HomeEvent> {
         .map((pokemonModel) => PokemonPresentation.fromModel(pokemonModel))
         .toList();
 
-    _dispatch(ListLoaded(pokemonsPresentation));
+    _dispatchStatus(ListLoaded(pokemonsPresentation));
   }
 
-  void _dispatch(HomeStatus homeStatus) => dispatchOn<HomeStatus>(homeStatus);
+  void _dispatchStatus(HomeStatus homeStatus) => dispatchOn<HomeStatus>(homeStatus);
 }

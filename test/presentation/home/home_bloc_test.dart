@@ -157,7 +157,8 @@ void main() {
         json.decode(pokemonsJsonsOffset0Limit20)['results'] as Iterable;
     final pokemonsEntity =
         result.map((pokemonMap) => PokemonEntity.fromJson(pokemonMap)).toList();
-    final pokemonsPresentation = pokemonsEntity
+    final pokemonsPresentation =
+    pokemonsEntity
         .map((pokemonModel) => PokemonPresentation.fromModel(pokemonModel))
         .toList();
 

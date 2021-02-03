@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:fancy_dex/core/cache_memory.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_bloc.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
@@ -20,7 +21,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   HomeBloc get _homeBloc => widget.homeBloc;
   final _scrollController = ScrollController();
-  final _scrollThreshold = 200.0;
+  final _scrollThreshold = 200;
 
   @override
   void initState() {
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> {
     return Expanded(
         child: StreamBuilder(
       initialData: ListLoading(),
-      stream: _homeBloc.streamOf<HomeStatus>(),
+      stream: _homeBloc.streamOf<HomeStatus>(key: _homeBloc.statusPokemonKey),
       builder: (context, snapshot) {
         final data = snapshot.data;
 
@@ -89,12 +90,14 @@ class _HomePageState extends State<HomePage> {
     return Text('Erro aconteceu! tente novamente com internet.');
   }
 
-  Widget _buildPokemonList(List<PokemonPresentation> pokemons) {
-    return SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          children: pokemons.map(_buildPokemonItem).toList(),
-        ));
+  Widget _buildPokemonList(CacheMemory<PokemonPresentation> pokemons) {
+    return ListView.builder(
+      itemBuilder: (BuildContext context, int index) {
+        return _buildPokemonItem(pokemons.elementAt(index));
+      },
+      itemCount: pokemons.length,
+      controller: _scrollController,
+    );
   }
 
   Widget _buildPokemonItem(PokemonPresentation pokemon) {

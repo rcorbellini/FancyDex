@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fancy_dex/core/cache_memory.dart';
 import 'package:fancy_dex/core/errors.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
@@ -11,6 +13,8 @@ import 'package:flutter/foundation.dart';
 
 class HomeBloc extends BaseBloc<HomeEvent> {
   final PokemonRepository pokemonRepository;
+  final statusPokemonKey = 'pokemon';
+  final statusKey = 'status';
 
   HomeBloc({@required this.pokemonRepository, Fancy fancy}) : super(fancy);
 
@@ -45,25 +49,20 @@ class HomeBloc extends BaseBloc<HomeEvent> {
     result.fold(_dispatchError, _dispatchPokemonAsList);
   }
 
-  int _offset = 0;
-  final CacheMemory<PokemonModel> _pokemonsLoaded = CacheMemory();
+  ListLoaded get currentListLoaded =>
+      map[statusPokemonKey] as ListLoaded ?? ListLoaded(CacheMemory());
 
   void _loadMorePokemons() async {
-    print(map);
     _dispatchLoading();
 
     final limit = 20;
+    //falta fazer o controle de concorrencia.
+    final offset = currentListLoaded.pokemons.length;
+    print('offset $offset');
     final result =
-        await pokemonRepository.getAllPaged(offset: _offset, limit: limit);
-    _offset += limit;
+        await pokemonRepository.getAllPaged(offset: offset, limit: limit);
 
-    result.fold(_dispatchError, (pokemons) {
-      _pokemonsLoaded.addAll(pokemons);
-      print('------ ${_pokemonsLoaded.toList().length}');
-      print(_pokemonsLoaded.toList());
-      print('----');
-      _dispatchListPokemons(_pokemonsLoaded.toList());
-    });
+    result.fold(_dispatchError, _dispatchListPokemons);
   }
 
   ///-----------------
@@ -81,9 +80,14 @@ class HomeBloc extends BaseBloc<HomeEvent> {
         .map((pokemonModel) => PokemonPresentation.fromModel(pokemonModel))
         .toList();
 
-    _dispatchStatus(ListLoaded(pokemonsPresentation));
+    currentListLoaded.pokemons.addAll(pokemonsPresentation);
+
+    _dispatchPokemons(ListLoaded(currentListLoaded.pokemons));
   }
 
   void _dispatchStatus(HomeStatus homeStatus) =>
-      dispatchOn<HomeStatus>(homeStatus);
+      dispatchOn<HomeStatus>(homeStatus, key: statusKey);
+
+  void _dispatchPokemons(HomeStatus homeStatus) =>
+      dispatchOn<HomeStatus>(homeStatus, key: statusPokemonKey);
 }

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:fancy_dex/core/errors.dart';
 import 'package:fancy_dex/core/exceptions.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
 import 'package:flutter/foundation.dart';

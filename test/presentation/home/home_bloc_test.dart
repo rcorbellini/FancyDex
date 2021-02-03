@@ -32,7 +32,7 @@ void main() {
 
   test('should call handleEvent when event are dispatched', () async {
     //arrange
-    final evt = PokemonRandom();
+    final evt = RandomPokemon();
 
     //act
     homeBloc.dispatchOn(evt);
@@ -42,7 +42,7 @@ void main() {
   });
 
   group('PokemonRandom evt:', () {
-    final evt = PokemonRandom();
+    final evt = RandomPokemon();
     final pokemonEntity = PokemonEntity.fromJson(json.decode(pokemonJsonDitto));
     final pokemonsPresentation = [PokemonPresentation.fromModel(pokemonEntity)];
 
@@ -98,7 +98,7 @@ void main() {
 
   group('PokemonByName evt:', () {
     final name = 'ditto';
-    final evt = PokemonByName(name);
+    final evt = LoadPokemonByName(name);
     final pokemonEntity = PokemonEntity.fromJson(json.decode(pokemonJsonDitto));
     final pokemonsPresentation = [PokemonPresentation.fromModel(pokemonEntity)];
 
@@ -152,7 +152,7 @@ void main() {
   });
 
   group('LoadMore evt:', () {
-    final evt = LoadMore();
+    final evt = LoadMorePokemons();
     final result =
         json.decode(pokemonsJsonsOffset0Limit20)['results'] as Iterable;
     final pokemonsEntity =

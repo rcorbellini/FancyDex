@@ -6,18 +6,18 @@ class Preamble extends HomeEvent {
   Preamble(this.query);
 }
 
-class PokemonRandom extends HomeEvent {}
+class RandomPokemon extends HomeEvent {}
 
-class PokemonByType extends HomeEvent {
+class LoadPokemonByType extends HomeEvent {
   final String query;
 
-  PokemonByType(this.query);
+  LoadPokemonByType(this.query);
 }
 
-class LoadMore extends HomeEvent {}
-
-class PokemonByName extends HomeEvent {
+class LoadPokemonByName extends HomeEvent {
   final String query;
 
-  PokemonByName(this.query);
+  LoadPokemonByName(this.query);
 }
+
+class LoadMorePokemons extends HomeEvent {}

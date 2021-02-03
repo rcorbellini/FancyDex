@@ -1,3 +1,4 @@
+import 'package:fancy_dex/core/cache_memory.dart';
 import 'package:fancy_dex/core/errors.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
@@ -16,11 +17,11 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   @protected
   @override
   Future<void> handleEvents(HomeEvent homeEvent) async {
-    if (homeEvent is PokemonByName) {
+    if (homeEvent is LoadPokemonByName) {
       return _loadPokemonByName(homeEvent.query);
-    } else if (homeEvent is PokemonRandom) {
+    } else if (homeEvent is RandomPokemon) {
       return _loadRandomPokemon();
-    } else if (homeEvent is LoadMore) {
+    } else if (homeEvent is LoadMorePokemons) {
       return _loadMorePokemons();
     }
   }
@@ -44,21 +45,29 @@ class HomeBloc extends BaseBloc<HomeEvent> {
     result.fold(_dispatchError, _dispatchPokemonAsList);
   }
 
-  ///da pra melhorar movendo para trás de um repository
   int _offset = 0;
+  final CacheMemory<PokemonModel> _pokemonsLoaded = CacheMemory();
 
   void _loadMorePokemons() async {
+    print(map);
     _dispatchLoading();
 
     final limit = 20;
-    final result = await pokemonRepository.getAllPaged(offset: _offset, limit: limit);
+    final result =
+        await pokemonRepository.getAllPaged(offset: _offset, limit: limit);
     _offset += limit;
 
-    result.fold(_dispatchError, _dispatchListPokemons);
+    result.fold(_dispatchError, (pokemons) {
+      _pokemonsLoaded.addAll(pokemons);
+      print('------ ${_pokemonsLoaded.toList().length}');
+      print(_pokemonsLoaded.toList());
+      print('----');
+      _dispatchListPokemons(_pokemonsLoaded.toList());
+    });
   }
 
   ///-----------------
-  /// Dispatch Status Session
+  /// Dispatch Session
   ///-----------------
   void _dispatchError(Error _) => _dispatchStatus(ListError());
 
@@ -75,5 +84,6 @@ class HomeBloc extends BaseBloc<HomeEvent> {
     _dispatchStatus(ListLoaded(pokemonsPresentation));
   }
 
-  void _dispatchStatus(HomeStatus homeStatus) => dispatchOn<HomeStatus>(homeStatus);
+  void _dispatchStatus(HomeStatus homeStatus) =>
+      dispatchOn<HomeStatus>(homeStatus);
 }

@@ -106,9 +106,14 @@ class _HomePageState extends State<HomePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
-      color: Color(0xff90C9A6),
+      //0xffEBC59C red
+      //0xff90C9A6 green ,
       child: Container(
         padding: EdgeInsets.all(8),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            gradient:
+                LinearGradient(colors: [Color(0xffEBC59C), Color(0xff90C9A6)])),
         child: Row(
           children: [
             CircleAvatar(
@@ -129,19 +134,31 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    pokemon.name,
+                    style: GoogleFonts.lato(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        shadows: <Shadow>[
+                          Shadow(
+                            offset: Offset(1.0, 1.0),
+                            blurRadius: 1.0,
+                            color: Colors.black.withOpacity(0.2),
+                          ),
+                          Shadow(
+                            offset: Offset(1.0, 1.0),
+                            blurRadius: 2.0,
+                            color: Colors.black.withOpacity(0.2),
+                          ),
+                        ],
+                        color: Colors.white),
+                  ),
+                  Text(
                     '#${pokemon.id}',
                     style: GoogleFonts.arsenal(
                         fontSize: 40,
                         fontWeight: FontWeight.bold,
                         color: Colors.white.withOpacity(0.4)),
                   ),
-                  Text(
-                    pokemon.name,
-                    style: GoogleFonts.lato(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  )
                 ],
               ),
             ),

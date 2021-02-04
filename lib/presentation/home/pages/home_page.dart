@@ -1,7 +1,5 @@
-import 'dart:async';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_bloc.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
@@ -25,21 +23,23 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _homeBloc.dispatchOn<HomeEvent>(LoadMorePokemons(),
-        key: _homeBloc.eventKey);
+    dispatchLoadingInitalPokemons();
     _scrollController.addListener(_onScroll);
     super.initState();
+  }
+
+  void dispatchLoadingInitalPokemons() {
+    _homeBloc.dispatchOn<HomeEvent>(LoadMorePokemons(),
+        key: _homeBloc.eventKey);
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildFilterByName(),
         _buildMainContent(),
-        _buildLoadMore(),
         _buildRandomPokemon(),
       ],
     );
@@ -52,13 +52,6 @@ class _HomePageState extends State<HomePage> {
             key: _homeBloc.eventKey));
   }
 
-  Widget _buildLoadMore() {
-    return RaisedButton(
-        child: Text('+'),
-        onPressed: () => _homeBloc.dispatchOn<HomeEvent>(LoadMorePokemons(),
-            key: _homeBloc.eventKey));
-  }
-
   Widget _buildFilterByName() {
     return TextField();
   }
@@ -67,30 +60,38 @@ class _HomePageState extends State<HomePage> {
     return Expanded(
         child: StreamBuilder(
       initialData: ListLoading(),
-      stream: _homeBloc.streamOf<HomeStatus>(key: _homeBloc.statusPokemonKey),
+      stream: _homeBloc.streamOf<HomeStatus>(key: _homeBloc.statusKey),
       builder: (context, snapshot) {
         final data = snapshot.data;
+        final pokemons = data.pokemonsLoaded;
+        final loading = data is ListLoading;
 
-        if (data is ListLoading) {
-          return _buildLoading();
-        } else if (data is ListLoaded) {
-          return _buildPokemonList(data.pokemons);
+        if (data is ListError) {
+          return _buildError();
         }
 
-        return _buildError();
+        return Column(
+          children: [
+            Expanded(child: _buildPokemonList(pokemons)),
+            _buildLoading(loading),
+          ],
+        );
       },
     ));
   }
 
-  Widget _buildLoading() {
-    return Text('Carregando');
+  Widget _buildLoading(bool loading) {
+    if (loading) {
+      return CircularProgressIndicator();
+    }
+    return Container();
   }
 
   Widget _buildError() {
     return Text('Erro aconteceu! tente novamente com internet.');
   }
 
-  Widget _buildPokemonList(SortedCacheMemory<PokemonPresentation> pokemons) {
+  Widget _buildPokemonList(List<PokemonPresentation> pokemons) {
     return ListView.builder(
       itemBuilder: (BuildContext context, int index) {
         return _buildPokemonItem(pokemons.elementAt(index));
@@ -101,16 +102,52 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildPokemonItem(PokemonPresentation pokemon) {
-    return Row(
-      children: [
-        CachedNetworkImage(
-          imageUrl: pokemon.imageUrl,
-          placeholder: (context, url) => CircularProgressIndicator(),
-          errorWidget: (context, url, error) => Icon(Icons.error),
-          height: 100,
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      color: Color(0xff90C9A6),
+      child: Container(
+        padding: EdgeInsets.all(8),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 55,
+              backgroundColor: Colors.white.withOpacity(0.15),
+              child: ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: pokemon.imageUrl,
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                  height: 100,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '#${pokemon.id}',
+                    style: GoogleFonts.arsenal(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.4)),
+                  ),
+                  Text(
+                    pokemon.name,
+                    style: GoogleFonts.lato(
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  )
+                ],
+              ),
+            ),
+          ],
         ),
-        Text(pokemon.name)
-      ],
+      ),
     );
   }
 
@@ -121,5 +158,12 @@ class _HomePageState extends State<HomePage> {
       _homeBloc.dispatchOn<HomeEvent>(LoadMorePokemons(),
           key: _homeBloc.eventKey);
     }
+  }
+
+  @override
+  void dispose() {
+    _homeBloc?.dispose();
+    _scrollController?.dispose();
+    super.dispose();
   }
 }

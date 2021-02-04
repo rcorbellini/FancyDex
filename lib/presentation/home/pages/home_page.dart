@@ -46,8 +46,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildRandomPokemon() {
-    return RaisedButton(
-        child: Text('Random'),
+    return FloatingActionButton(
+
+        child: Text('?', style: GoogleFonts.lato(color: Colors.black, fontSize: 30),),
         onPressed: () => _homeBloc.dispatchOn<HomeEvent>(RandomPokemon(),
             key: _homeBloc.eventKey));
   }
@@ -102,70 +103,73 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildPokemonItem(PokemonPresentation pokemon) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      //0xffEBC59C red
-      //0xff90C9A6 green ,
-      child: Container(
-        padding: EdgeInsets.all(8),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            gradient:
-                LinearGradient(colors: [Color(0xffEBC59C), Color(0xff90C9A6)])),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 55,
-              backgroundColor: Colors.white.withOpacity(0.15),
-              child: ClipOval(
-                child: CachedNetworkImage(
-                  imageUrl: pokemon.imageUrl,
-                  placeholder: (context, url) => CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                  height: 100,
+    return Padding(
+        padding: EdgeInsets.fromLTRB(4, 6, 4, 6),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          //0xffEBC59C red
+          //0xff90C9A6 green ,
+          child: Container(
+            padding: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(
+                    colors: [Color(0xbb90C9A6), Color(0xff90C9A6)])),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 55,
+                  backgroundColor: Colors.white.withOpacity(0.15),
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: pokemon.imageUrl,
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      height: 100,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    pokemon.name,
-                    style: GoogleFonts.lato(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        shadows: <Shadow>[
-                          Shadow(
-                            offset: Offset(1.0, 1.0),
-                            blurRadius: 1.0,
-                            color: Colors.black.withOpacity(0.2),
-                          ),
-                          Shadow(
-                            offset: Offset(1.0, 1.0),
-                            blurRadius: 2.0,
-                            color: Colors.black.withOpacity(0.2),
-                          ),
-                        ],
-                        color: Colors.white),
+                Padding(
+                  padding: EdgeInsets.only(left: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        pokemon.name,
+                        style: GoogleFonts.lato(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            shadows: <Shadow>[
+                              Shadow(
+                                offset: Offset(0.5, 0.5),
+                                blurRadius: 1.0,
+                                color: Colors.black.withOpacity(0.2),
+                              ),
+                              Shadow(
+                                offset: Offset(1.0, 1.0),
+                                blurRadius: 1.0,
+                                color: Colors.black.withOpacity(0.2),
+                              ),
+                            ],
+                            color: Colors.white),
+                      ),
+                      Text(
+                        '#${pokemon.id}',
+                        style: GoogleFonts.arsenal(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white.withOpacity(0.6)),
+                      ),
+                    ],
                   ),
-                  Text(
-                    '#${pokemon.id}',
-                    style: GoogleFonts.arsenal(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white.withOpacity(0.4)),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   void _onScroll() {

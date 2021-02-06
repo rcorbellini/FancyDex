@@ -33,8 +33,11 @@ class PokemonRepositoryImp extends PokemonRepository {
     if (await networkStatus.isConnected) {
       final pokemonsRemote = await pokemonRemoteDataSource.getAllPaged(
           offset: offset, limit: limit);
-      await pokemonCacheDataSource.cachePokemons(pokemonsRemote);
-      return Right(pokemonsRemote);
+      final pokemonsFullRemote = await Future.wait(pokemonsRemote
+          .map((pokemon) => pokemonRemoteDataSource.getPokemonById(pokemon.id))
+          .toList());
+      await pokemonCacheDataSource.cachePokemons(pokemonsFullRemote);
+      return Right(pokemonsFullRemote);
     }
 
     final pokemonsCached = await pokemonCacheDataSource.getCachedPokemons(

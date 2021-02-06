@@ -6,7 +6,7 @@ import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
 import 'package:fancy_dex/core/architecture/base_bloc.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
-import 'package:fancy_dex/presentation/home/models/pokemon_presentation.dart';
+import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
 import 'package:fancy_stream/fancy_stream.dart';
 import 'package:flutter/foundation.dart';
 

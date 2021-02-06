@@ -1,11 +1,26 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:fancy_dex/core/utils/network_status.dart';
+import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
+import 'package:fancy_dex/data/data_sources/pokemon_cache_data_source.dart';
+import 'package:fancy_dex/data/data_sources/pokemon_remote_data_source.dart';
+import 'package:fancy_dex/data/entities/pokemon_entity.dart';
+import 'package:fancy_dex/data/repositories/pokemon_repository_imp.dart';
+import 'package:fancy_dex/presentation/detail/bloc/detail_bloc.dart';
+import 'package:fancy_dex/presentation/detail/pages/detail_page.dart';
+import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
+import 'package:fancy_dex/presentation/widgets/poke_loading.dart';
+import 'package:fancy_dex/presentation/widgets/poke_types.dart';
+import 'package:fancy_stream/fancy_stream.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_bloc.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
-import 'package:fancy_dex/presentation/home/models/pokemon_presentation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   final HomeBloc homeBloc;
@@ -35,26 +50,54 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        _buildFilterByName(),
-        _buildMainContent(),
-        _buildRandomPokemon(),
-      ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 0,
+        title: Text("FancyDex",
+            style: GoogleFonts.bellota(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: Colors.red.withOpacity(0.6),
+            )),
+        backgroundColor: Colors.white,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(
+                Icons.filter_list,
+                color: Colors.blueGrey,
+              ),
+              onPressed: () {})
+        ],
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: _buildRandomPokemon(),
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          //_buildFilterByName(),
+          _buildMainContent(),
+        ],
+      ),
     );
   }
 
   Widget _buildRandomPokemon() {
     return FloatingActionButton(
-
-        child: Text('?', style: GoogleFonts.lato(color: Colors.black, fontSize: 30),),
+        backgroundColor: Colors.blueGrey.shade400,
+        child: Text(
+          '?',
+          style: GoogleFonts.lato(color: Colors.white, fontSize: 40),
+        ),
         onPressed: () => _homeBloc.dispatchOn<HomeEvent>(RandomPokemon(),
             key: _homeBloc.eventKey));
   }
 
   Widget _buildFilterByName() {
-    return TextField();
+    return Padding(
+      padding: EdgeInsets.all(4),
+      child: TextField(),
+    );
   }
 
   Widget _buildMainContent() {
@@ -71,9 +114,9 @@ class _HomePageState extends State<HomePage> {
           return _buildError();
         }
 
-        return Column(
+        return Stack(
           children: [
-            Expanded(child: _buildPokemonList(pokemons)),
+            _buildPokemonList(pokemons),
             _buildLoading(loading),
           ],
         );
@@ -83,8 +126,15 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildLoading(bool loading) {
     if (loading) {
-      return CircularProgressIndicator();
+      return Positioned.fill(
+        bottom: 30,
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: PokeLoading(),
+        ),
+      );
     }
+
     return Container();
   }
 
@@ -103,73 +153,112 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildPokemonItem(PokemonPresentation pokemon) {
-    return Padding(
-        padding: EdgeInsets.fromLTRB(4, 6, 4, 6),
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          //0xffEBC59C red
-          //0xff90C9A6 green ,
-          child: Container(
-            padding: EdgeInsets.all(4),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                gradient: LinearGradient(
-                    colors: [Color(0xbb90C9A6), Color(0xff90C9A6)])),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 55,
-                  backgroundColor: Colors.white.withOpacity(0.15),
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: pokemon.imageUrl,
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                      height: 100,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        pokemon.name,
-                        style: GoogleFonts.lato(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            shadows: <Shadow>[
-                              Shadow(
-                                offset: Offset(0.5, 0.5),
-                                blurRadius: 1.0,
-                                color: Colors.black.withOpacity(0.2),
-                              ),
-                              Shadow(
-                                offset: Offset(1.0, 1.0),
-                                blurRadius: 1.0,
-                                color: Colors.black.withOpacity(0.2),
-                              ),
-                            ],
-                            color: Colors.white),
-                      ),
-                      Text(
-                        '#${pokemon.id}',
-                        style: GoogleFonts.arsenal(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white.withOpacity(0.6)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailPage(
+              id: pokemon.id,
+              detailBloc: DetailBloc(
+                fancy: FancyImp(),
+                pokemonRepository: PokemonRepositoryImp(
+                    networkStatus: NetworkStatusImp(DataConnectionChecker()),
+                    random: Random(),
+                    pokemonCacheDataSource: PokemonCacheDataSourceImp(
+                        SortedCacheMemory<PokemonEntity>()),
+                    pokemonRemoteDataSource:
+                        PokemonRemoteDataSourceImpl(client: http.Client())),
+              ),
             ),
           ),
-        ));
+        );
+      },
+      child: Padding(
+          padding: EdgeInsets.fromLTRB(4, 6, 4, 6),
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: Container(
+              padding: EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(
+                  colors: _getColorsByType(pokemon.types),
+                ),
+              ),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 55,
+                    backgroundColor: Colors.white.withOpacity(0.15),
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: pokemon.imageUrl,
+                        placeholder: (context, url) =>
+                            _buildLoadingImagePokemon(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                        height: 100,
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            pokemon.name,
+                            overflow: TextOverflow.clip,
+                            style: GoogleFonts.lato(
+                                fontSize: 40,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                          Row(
+                            children: [
+                              Padding(
+                                  padding: EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    '#${pokemon.descritibleId}',
+                                    style: GoogleFonts.arsenal(
+                                      fontSize: 40,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white.withOpacity(0.6),
+                                    ),
+                                  )),
+                              Row(
+                                children: pokemon.types
+                                    ?.map((type) => PokeTypes(type: type))
+                                    ?.toList(),
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )),
+    );
+  }
+
+  List<Color> _getColorsByType(List<Map<String, dynamic>> types) {
+    final colors =
+        types.map((type) => Color(type['color']).withAlpha(100)).toList();
+    if (colors.length == 1) {
+      colors.add(colors[0]);
+    }
+
+    return colors;
+  }
+
+  Widget _buildLoadingImagePokemon() {
+    return Image.asset('assets/images/pokeball.jpg');
   }
 
   void _onScroll() {

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fancy_dex/presentation/home/models/pokemon_presentation.dart';
+import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
 
 abstract class HomeStatus extends Equatable {
   final List<PokemonPresentation> pokemonsLoaded;

@@ -1,13 +1,14 @@
+import 'package:fancy_dex/core/utils/constants.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:flutter/cupertino.dart';
 
 class PokemonPresentation extends PokemonModel {
   final String imageUrl;
-  final int backgroundColor;
+  final String descritibleId;
 
   PokemonPresentation(
-      {@required this.backgroundColor,
-      @required this.imageUrl,
+      {@required this.imageUrl,
+      @required this.descritibleId,
       @required int id,
       @required String name,
       @required double height,
@@ -20,6 +21,7 @@ class PokemonPresentation extends PokemonModel {
           weight: weight,
           types: types,
         );
+  int get primaryColor => types[0]['color'];
 
   factory PokemonPresentation.fromModel(PokemonModel model) {
     final imageUrl =
@@ -29,16 +31,30 @@ class PokemonPresentation extends PokemonModel {
         .map((str) => '${str[0].toUpperCase()}${str.substring(1)}')
         .join(" ");
 
-    ///TODO continue...
-   // final backgroundColor =
+    final descritibleId = model.id.toString().padLeft(3, '0');
+
+    final typesNames =
+        (model.types.map((type) => type['type']['name']).toList());
+    print(typesNames);
+
+    final types = typesNames
+        .map(
+            (typeName) => {'name': typeName, 'color': typeToIntColor[typeName]})
+        .toList();
+    print(types);
+
+    final height = model.height / 10;
+
+    final weight = model.weight / 10;
 
     return PokemonPresentation(
       imageUrl: imageUrl,
       id: model.id,
+      descritibleId: descritibleId,
       name: nameCaptalized,
-      height: model.height,
-      weight: model.weight,
-      types: model.types,
+      height: height,
+      weight: weight,
+      types: types,
     );
   }
 }

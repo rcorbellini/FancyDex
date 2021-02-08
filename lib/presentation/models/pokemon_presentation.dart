@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 class PokemonPresentation extends PokemonModel {
   final String imageUrl;
   final String descritibleId;
+  bool visible;
 
   PokemonPresentation(
       {@required this.imageUrl,
@@ -39,13 +40,10 @@ class PokemonPresentation extends PokemonModel {
 
     final typesNames =
         (model.types.map((type) => type['type']['name']).toList());
-    print(typesNames);
 
     final types = typesNames
-        .map(
-            (typeName) => {'name': typeName, 'color': typeToIntColor[typeName]})
+        .map((typeName) => {'name': typeName, 'color': allTypeColors[typeName]})
         .toList();
-    print(types);
 
     final height = model.height / 10;
 

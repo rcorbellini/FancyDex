@@ -35,7 +35,7 @@ class PokeBarStatsPainter extends CustomPainter {
   PokeBarStatsPainter(this.data, this.percentage) {
     // determine where to begin with X, based on the width of the category names
     data.forEach((key, value) {
-      var text = createText(key, 1);
+      var text = createText(key, 1, true);
       if ((text.width + 5) > marginTopX) {
         marginTopX = text.width + 5;
       }
@@ -64,8 +64,8 @@ class PokeBarStatsPainter extends CustomPainter {
       colorBar = Colors.orange.shade300;
     }
 
-    drawText(value.toString(), canvas, marginTopX + 5, y);
-    drawText(key, canvas, 0, y);
+    drawText(key, canvas, 0, y, label: true);
+    drawText(value.toString(), canvas, marginTopX + 5, y, label: false);
     Paint paint = Paint()
       ..strokeCap = StrokeCap.round
       ..strokeWidth = barHeight - 10
@@ -96,18 +96,16 @@ class PokeBarStatsPainter extends CustomPainter {
     }
   }
 
-  void drawText(String key, Canvas canvas, double x, double y) {
-    TextPainter tp = createText(key, 1);
+  void drawText(String key, Canvas canvas, double x, double y, {bool label = false}) {
+    TextPainter tp = createText(key, 1, label);
     tp.paint(canvas, new Offset(x, y - tp.height / 2));
   }
 
-  TextPainter createText(String key, double scale) {
+  TextPainter createText(String key, double scale, bool label) {
     TextSpan span = new TextSpan(
-        style: GoogleFonts.rambla(
-          fontSize: 16,
-          color: Colors.black,
-        ),
+        style: GoogleFonts.rambla(fontSize: 14, color: label? Colors.grey.shade500 : Colors.black),
         text: key);
+
     TextPainter tp = new TextPainter(
         text: span,
         textAlign: TextAlign.left,

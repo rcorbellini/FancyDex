@@ -9,15 +9,16 @@ class Preamble extends HomeEvent {
 class RandomPokemon extends HomeEvent {}
 
 class LoadPokemonByType extends HomeEvent {
-  final String query;
+  final String typeTapped;
+  final List<String> filteredTypes;
 
-  LoadPokemonByType(this.query);
+  LoadPokemonByType(this.typeTapped, this.filteredTypes);
 }
 
-class LoadPokemonByName extends HomeEvent {
+class LoadPokemonByNameOrId extends HomeEvent {
   final String query;
 
-  LoadPokemonByName(this.query);
+  LoadPokemonByNameOrId(this.query);
 }
 
 class LoadMorePokemons extends HomeEvent {}

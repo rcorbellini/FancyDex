@@ -1,4 +1,4 @@
-const Map<String, int> typeToIntColor = {
+const Map<String, int> allTypeColors = {
   'fire': 0xffEC7644,
   'water': 0xff3592CC,
   'grass': 0xff4EAD59,

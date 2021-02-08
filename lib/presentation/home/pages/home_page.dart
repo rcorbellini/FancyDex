@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:data_connection_checker/data_connection_checker.dart';
+import 'package:fancy_dex/core/utils/constants.dart';
 import 'package:fancy_dex/core/utils/network_status.dart';
 import 'package:fancy_dex/core/utils/sorted_cache_memory.dart';
 import 'package:fancy_dex/data/data_sources/pokemon_cache_data_source.dart';
@@ -21,6 +22,7 @@ import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_icons/flutter_icons.dart';
 
 class HomePage extends StatefulWidget {
   final HomeBloc homeBloc;
@@ -35,11 +37,14 @@ class _HomePageState extends State<HomePage> {
   HomeBloc get _homeBloc => widget.homeBloc;
   final _scrollController = ScrollController();
   final _scrollThreshold = 200;
+  bool filterOpen = false;
 
   @override
   void initState() {
     dispatchLoadingInitalPokemons();
     _scrollController.addListener(_onScroll);
+    _homeBloc.listenOn<PokemonFound>(_whenPokemonFound,
+        key: _homeBloc.pokemonFoundStatus);
     super.initState();
   }
 
@@ -48,10 +53,24 @@ class _HomePageState extends State<HomePage> {
         key: _homeBloc.eventKey);
   }
 
+  void _whenPokemonFound(PokemonFound pokemonFound) {
+    if (pokemonFound?.pokemon == null) {
+      return;
+    }
+    showDialog(
+      context: context,
+      builder: (_) => Center(
+          child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [_buildPokemonItem(pokemonFound.pokemon)],
+      )),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white.withOpacity(opacity),
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
@@ -66,9 +85,13 @@ class _HomePageState extends State<HomePage> {
           IconButton(
               icon: Icon(
                 Icons.filter_list,
-                color: Colors.blueGrey,
+                color: filterOpen ? Colors.blueGrey.shade100 : Colors.blueGrey,
               ),
-              onPressed: () {})
+              onPressed: () {
+                setState(() {
+                  filterOpen = !filterOpen;
+                });
+              })
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
@@ -76,7 +99,12 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          //_buildFilterByName(),
+          _buildFilterByNameOrId(),
+          _filterByType(),
+          Container(
+            height: 1,
+            color: Colors.grey.shade100,
+          ),
           _buildMainContent(),
         ],
       ),
@@ -84,20 +112,93 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildRandomPokemon() {
-    return FloatingActionButton(
-        backgroundColor: Colors.blueGrey.shade400,
-        child: Text(
-          '?',
-          style: GoogleFonts.lato(color: Colors.white, fontSize: 40),
+    return FloatingActionButton.extended(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        icon: Icon(
+          FontAwesome.random,
+          color: Colors.blueGrey,
+        ),
+        label: Text(
+          'Random',
+          style: GoogleFonts.lato(color: Colors.blueGrey, fontSize: 16),
         ),
         onPressed: () => _homeBloc.dispatchOn<HomeEvent>(RandomPokemon(),
             key: _homeBloc.eventKey));
   }
 
-  Widget _buildFilterByName() {
+  Widget _buildFilterByNameOrId() {
+    if (!filterOpen) {
+      return Container();
+    }
     return Padding(
-      padding: EdgeInsets.all(4),
-      child: TextField(),
+        padding: EdgeInsets.all(16),
+        child: Container(
+          height: 35,
+          child: TextField(
+            style: TextStyle(fontSize: 16, height: 0.8),
+            expands: false,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Color(0xffEAEBEC),
+              hintText: 'Search for a Pokemon',
+              hintStyle: TextStyle(
+                fontSize: 16,
+                height: 0.7,
+                color: Colors.grey.shade400,
+              ),
+              prefixIcon: Icon(
+                FontAwesome.search,
+                color: Colors.grey.shade400,
+                size: 15,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade100),
+                borderRadius: BorderRadius.circular(25.7),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade50),
+                borderRadius: BorderRadius.circular(25.7),
+              ),
+            ),
+            onChanged: (text) => _homeBloc.dispatchOn<HomeEvent>(
+                LoadPokemonByNameOrId(text),
+                key: _homeBloc.eventKey),
+          ),
+        ));
+  }
+
+  Widget _filterByType() {
+    if (!filterOpen) {
+      return Container();
+    }
+    return StreamBuilder(
+      initialData: allTypeColors.keys,
+      stream: _homeBloc.streamOf<List<String>>(
+          key: _homeBloc.typesFilteredStatysKey),
+      builder: (context, snapshot) {
+        final selectedColors = snapshot.data;
+        final widgets = allTypeColors
+            .map((name, color) {
+              final Map<String, dynamic> type = {'name': name, 'color': color};
+              return MapEntry<String, Widget>(
+                  name,
+                  GestureDetector(
+                    onTap: () => _homeBloc.dispatchOn<HomeEvent>(
+                        LoadPokemonByType(name, selectedColors.toList()),
+                        key: _homeBloc.eventKey),
+                    child: PokeTypes(
+                      type: type,
+                      enable: selectedColors.contains(name),
+                    ),
+                  ));
+            })
+            .values
+            .toList();
+        return Padding(
+            padding: EdgeInsets.all(6),
+            child: Wrap(children: widgets.toList()));
+      },
     );
   }
 
@@ -144,11 +245,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildPokemonList(List<PokemonPresentation> pokemons) {
+    final pokemonsVisible = pokemons.where((element) => element.visible);
     return ListView.builder(
       itemBuilder: (BuildContext context, int index) {
-        return _buildPokemonItem(pokemons.elementAt(index));
+        return _buildPokemonItem(pokemonsVisible.elementAt(index));
       },
-      itemCount: pokemons.length,
+      itemCount: pokemonsVisible.length,
       controller: _scrollController,
     );
   }
@@ -159,19 +261,7 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailPage(
-              id: pokemon.id,
-              detailBloc: DetailBloc(
-                fancy: FancyImp(),
-                pokemonRepository: PokemonRepositoryImp(
-                    networkStatus: NetworkStatusImp(DataConnectionChecker()),
-                    random: Random(),
-                    pokemonCacheDataSource: PokemonCacheDataSourceImp(
-                        SortedCacheMemory<PokemonEntity>()),
-                    pokemonRemoteDataSource:
-                        PokemonRemoteDataSourceImpl(client: http.Client())),
-              ),
-            ),
+            builder: (context) => getDetailPage(pokemon),
           ),
         );
       },
@@ -191,18 +281,24 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 55,
-                  backgroundColor: Colors.white.withOpacity(0.15),
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      imageUrl: pokemon.imageUrl,
-                      placeholder: (context, url) =>
-                          _buildLoadingImagePokemon(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                      height: 100,
-                    ),
-                  ),
+                Stack(
+                  children: [
+                    Padding(
+                        padding: EdgeInsets.all(4),
+                        child: CachedNetworkImage(
+                          imageUrl: pokemon.imageUrl,
+                          placeholder: (context, url) =>
+                              _buildLoadingImagePokemon(),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.error),
+                          height: 100,
+                        )),
+                    CircleAvatar(
+                      radius: 52,
+                      backgroundColor: Colors.white.withOpacity(0.15),
+                      child: ClipOval(child: Container()),
+                    )
+                  ],
                 ),
                 Flexible(
                   child: Padding(
@@ -279,3 +375,18 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 }
+
+//todo mover para DI
+Widget getDetailPage(PokemonPresentation pokemon) => DetailPage(
+      id: pokemon.id,
+      detailBloc: DetailBloc(
+        fancy: FancyImp(),
+        pokemonRepository: PokemonRepositoryImp(
+            networkStatus: NetworkStatusImp(DataConnectionChecker()),
+            random: Random(),
+            pokemonCacheDataSource:
+                PokemonCacheDataSourceImp(SortedCacheMemory<PokemonEntity>()),
+            pokemonRemoteDataSource:
+                PokemonRemoteDataSourceImpl(client: http.Client())),
+      ),
+    );

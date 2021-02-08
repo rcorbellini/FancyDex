@@ -24,6 +24,9 @@ class PokemonModel extends Equatable implements Comparable {
 
   @override
   int compareTo(other) {
+    if(id == null || other == null){
+      return 0;
+    }
     return id - other.id;
   }
 }

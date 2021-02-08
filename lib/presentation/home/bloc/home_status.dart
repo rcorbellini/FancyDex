@@ -1,25 +1,38 @@
 import 'package:equatable/equatable.dart';
 import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
 
-abstract class HomeStatus extends Equatable {
+abstract class HomeStatus extends Equatable {}
+
+//status to search
+class PokemonFound extends Equatable {
+  final PokemonPresentation pokemon;
+
+  PokemonFound(this.pokemon);
+
+  @override
+  List<Object> get props => [];
+}
+
+//Status to List
+abstract class HomeListStatus extends HomeStatus {
   final List<PokemonPresentation> pokemonsLoaded;
 
-  HomeStatus(this.pokemonsLoaded);
+  HomeListStatus(this.pokemonsLoaded);
 
   @override
   List<Object> get props => [pokemonsLoaded];
 }
 
-class ListLoaded extends HomeStatus {
+class ListLoaded extends HomeListStatus {
   ListLoaded(List<PokemonPresentation> pokemons) : super(pokemons ?? []);
 }
 
-class ListLoading extends ListLoaded {
+class ListLoading extends HomeListStatus {
   ListLoading({List<PokemonPresentation> lastPokemonsLoaded})
       : super(lastPokemonsLoaded ?? []);
 }
 
-class ListError extends ListLoaded {
+class ListError extends HomeListStatus {
   ListError({List<PokemonPresentation> lastPokemonsLoaded})
       : super(lastPokemonsLoaded ?? []);
 }

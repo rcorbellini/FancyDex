@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fancy_dex/core/errors/errors.dart';
+import 'package:fancy_dex/core/utils/constants.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
 import 'package:fancy_dex/core/architecture/base_bloc.dart';
@@ -12,7 +13,15 @@ import 'package:flutter/foundation.dart';
 
 class HomeBloc extends BaseBloc<HomeEvent> {
   final PokemonRepository pokemonRepository;
+  //Default list status
   final statusKey = 'status';
+
+  //Filter By Types
+  final typesSelectedKey = 'type_selected';
+  final typesFilteredStatysKey = 'types_filtered';
+
+  //random & serach by NameOrId
+  final pokemonFoundStatus = 'pokemon_found_stat';
 
   HomeBloc({@required this.pokemonRepository, Fancy fancy}) : super(fancy);
 
@@ -26,28 +35,31 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   @protected
   @override
   Future<void> handleEvents(HomeEvent homeEvent) async {
-    if (homeEvent is LoadPokemonByName) {
-      return _loadPokemonByName(homeEvent.query);
+    if (homeEvent is LoadPokemonByNameOrId) {
+      return _loadPokemonByNameOrId(homeEvent.query);
     } else if (homeEvent is RandomPokemon) {
       return _loadRandomPokemon();
     } else if (homeEvent is LoadMorePokemons) {
       return _loadMorePokemons();
+    } else if (homeEvent is LoadPokemonByType) {
+      return _loadByType(homeEvent.typeTapped, homeEvent.filteredTypes);
     }
   }
 
   ///---------------
   /// Handler Events session
   ///---------------
-  void _loadPokemonByName(String name) async {
-    final result = await pokemonRepository.getPokemonByName(name);
+  void _loadPokemonByNameOrId(String query) async {
+    final result = _isNumeric(query)
+        ? await pokemonRepository.getPokemonById(int.parse(query))
+        : await pokemonRepository.getPokemonByName(query);
 
-    result.fold(_dispatchError, _dispatchPokemonAsList);
+    result.fold(_dispatchError, _dispatchPokemonFound);
   }
 
   void _loadRandomPokemon() async {
     final result = await pokemonRepository.getRandomPokemon();
-
-    result.fold(_dispatchError, _dispatchPokemonAsList);
+    result.fold(_dispatchError, _dispatchPokemonFound);
   }
 
   List<PokemonPresentation> get lastStatePokemonsLoaded {
@@ -58,7 +70,29 @@ class HomeBloc extends BaseBloc<HomeEvent> {
     return map[statusKey].pokemonsLoaded;
   }
 
-  //falta fazer o controle de concorrencia.
+  List<String> get filterTypesApplied {
+    if (map[typesFilteredStatysKey] == null) {
+      return allTypeColors.keys.toList();
+    }
+
+    return map[typesFilteredStatysKey];
+  }
+
+  void _loadByType(String typeTapped, List<String> filteredTypes) {
+    bool appliedFilter = !filteredTypes.contains(typeTapped);
+
+    if (appliedFilter) {
+      filteredTypes.add(typeTapped);
+    } else {
+      filteredTypes.remove(typeTapped);
+    }
+    dispatchOn<List<String>>(filteredTypes, key: typesFilteredStatysKey);
+
+    final pokemonsToShow = _applyFiltersOnPokemonList(lastStatePokemonsLoaded);
+
+    _dispatchPokemons(ListLoaded(pokemonsToShow));
+  }
+
   void _loadMorePokemons() async {
     final limit = 20;
     final offset = lastStatePokemonsLoaded.length;
@@ -66,6 +100,13 @@ class HomeBloc extends BaseBloc<HomeEvent> {
         await pokemonRepository.getAllPaged(offset: offset, limit: limit);
 
     result.fold(_dispatchError, _dispatchListPokemons);
+  }
+
+  bool _isNumeric(String s) {
+    if (s == null) {
+      return false;
+    }
+    return double.tryParse(s) != null;
   }
 
   ///-----------------
@@ -77,22 +118,54 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   void _dispatchLoading([HomeEvent _]) =>
       _dispatchStatus(ListLoading(lastPokemonsLoaded: lastStatePokemonsLoaded));
 
-  void _dispatchPokemonAsList(PokemonModel pokemonModel) =>
-      _dispatchListPokemons([pokemonModel]);
+  void _dispatchPokemonFound(PokemonModel pokemonModel) =>
+      _dispatchPokemonFoundStatus(
+          PokemonFound(PokemonPresentation.fromModel(pokemonModel)));
+
+  void _dispatchPokemonFoundStatus(PokemonFound homeStatus) {
+    dispatchOn<PokemonFound>(homeStatus, key: pokemonFoundStatus);
+    //just to stop loading
+    _dispatchStatus(ListLoaded(lastStatePokemonsLoaded));
+  }
 
   void _dispatchListPokemons(List<PokemonModel> pokemons) {
-    print('pokemonsloaded ${pokemons.length}');
     final pokemonsPresentation = pokemons
         .map((pokemonModel) => PokemonPresentation.fromModel(pokemonModel))
         .toList();
 
-    _dispatchPokemons(
-        ListLoaded(lastStatePokemonsLoaded + pokemonsPresentation));
+    final pokemonsToShow = _applyFiltersOnPokemonList(
+        lastStatePokemonsLoaded + pokemonsPresentation);
+
+    _dispatchPokemons(ListLoaded(pokemonsToShow));
+  }
+
+  ///Set visibility of pokemons based on filters applied
+  List<PokemonPresentation> _applyFiltersOnPokemonList(
+      List<PokemonPresentation> pokemons) {
+    pokemons.forEach((pokemon) {
+      pokemon.visible = pokemon.types
+              .where((type) => filterTypesApplied.contains(type['name']))
+              .length >
+          0;
+    });
+
+    return pokemons;
   }
 
   void _dispatchStatus(HomeStatus homeStatus) =>
       dispatchOn<HomeStatus>(homeStatus, key: statusKey);
 
-  void _dispatchPokemons(HomeStatus homeStatus) =>
-      dispatchOn<HomeStatus>(homeStatus, key: statusKey);
+  void _dispatchPokemons(HomeListStatus homeStatus) {
+    final countPokemons =
+        homeStatus.pokemonsLoaded.where((element) => element.visible).length;
+
+    //dispatching to screen show some pokemons
+    dispatchOn<HomeStatus>(homeStatus, key: statusKey);
+
+    if (countPokemons < 20 && filterTypesApplied.length > 0) {
+      //when apply filter sometimes need to loadmore pokemons
+      //to stay with minimum 20 pokemons loaded on screen.
+      _loadMorePokemons();
+    }
+  }
 }

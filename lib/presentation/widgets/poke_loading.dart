@@ -19,7 +19,7 @@ class _PokeLoadingState extends State<PokeLoading>
   @override
   void initState() {
     _rotationController = AnimationController(
-        duration: const Duration(milliseconds: 100), vsync: this);
+        duration: const Duration(milliseconds: 1500), vsync: this);
     super.initState();
   }
 

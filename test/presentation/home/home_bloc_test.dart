@@ -98,7 +98,7 @@ void main() {
 
   group('PokemonByName evt:', () {
     final name = 'ditto';
-    final evt = LoadPokemonByName(name);
+    final evt = LoadPokemonByNameOrId(name);
     final pokemonEntity = PokemonEntity.fromJson(json.decode(pokemonJsonDitto));
     final pokemonsPresentation = [PokemonPresentation.fromModel(pokemonEntity)];
 

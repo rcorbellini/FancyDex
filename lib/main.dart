@@ -23,17 +23,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         home: Scaffold(
       body: HomePage(
-        homeBloc: HomeBloc(
-          fancy: FancyImp(),
-          pokemonRepository: PokemonRepositoryImp(
-              networkStatus: NetworkStatusImp(DataConnectionChecker()),
-              random: Random(),
-              pokemonCacheDataSource:
-                  PokemonCacheDataSourceImp(SortedCacheMemory<PokemonEntity>()),
-              pokemonRemoteDataSource:
-                  PokemonRemoteDataSourceImpl(client: http.Client())),
-        ),
+        homeBloc: home_bloc,
       ),
     ));
   }
 }
+
+final home_bloc = HomeBloc(
+  fancy: FancyImp(),
+  pokemonRepository: PokemonRepositoryImp(
+      networkStatus: NetworkStatusImp(DataConnectionChecker()),
+      random: Random(),
+      pokemonCacheDataSource:
+          PokemonCacheDataSourceImp(SortedCacheMemory<PokemonEntity>()),
+      pokemonRemoteDataSource:
+          PokemonRemoteDataSourceImpl(client: http.Client())),
+);

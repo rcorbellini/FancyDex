@@ -13,15 +13,19 @@ class PokemonPresentation extends PokemonModel {
       @required String name,
       @required double height,
       @required double weight,
-      @required List types})
+      @required List types,
+      @required List stats})
       : super(
-          id: id,
-          name: name,
-          height: height,
-          weight: weight,
-          types: types,
-        );
+            id: id,
+            name: name,
+            height: height,
+            weight: weight,
+            types: types,
+            stats: stats);
   int get primaryColor => types[0]['color'];
+
+  Map<String, int> get statsToMap =>
+      Map.fromIterable(stats, key: (v) => v['name'], value: (v) => v['value']);
 
   factory PokemonPresentation.fromModel(PokemonModel model) {
     final imageUrl =
@@ -47,6 +51,13 @@ class PokemonPresentation extends PokemonModel {
 
     final weight = model.weight / 10;
 
+    final List<Map<String, dynamic>> statsList = model.stats
+        .map((st) => <String, dynamic>{
+              'name': st['stat']['name'],
+              'value': st['base_stat']
+            })
+        .toList();
+
     return PokemonPresentation(
       imageUrl: imageUrl,
       id: model.id,
@@ -55,6 +66,7 @@ class PokemonPresentation extends PokemonModel {
       height: height,
       weight: weight,
       types: types,
+      stats: statsList,
     );
   }
 }

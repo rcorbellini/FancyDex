@@ -54,6 +54,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
+        centerTitle: false,
         title: Text("FancyDex",
             style: GoogleFonts.bellota(
               fontSize: 30,
@@ -175,75 +176,76 @@ class _HomePageState extends State<HomePage> {
         );
       },
       child: Padding(
-          padding: EdgeInsets.fromLTRB(4, 6, 4, 6),
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
+        padding: EdgeInsets.fromLTRB(4, 6, 4, 6),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                colors: _getColorsByType(pokemon.types),
+              ),
             ),
-            child: Container(
-              padding: EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                gradient: LinearGradient(
-                  colors: _getColorsByType(pokemon.types),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 55,
+                  backgroundColor: Colors.white.withOpacity(0.15),
+                  child: ClipOval(
+                    child: CachedNetworkImage(
+                      imageUrl: pokemon.imageUrl,
+                      placeholder: (context, url) =>
+                          _buildLoadingImagePokemon(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                      height: 100,
+                    ),
+                  ),
                 ),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 55,
-                    backgroundColor: Colors.white.withOpacity(0.15),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: pokemon.imageUrl,
-                        placeholder: (context, url) =>
-                            _buildLoadingImagePokemon(),
-                        errorWidget: (context, url, error) => Icon(Icons.error),
-                        height: 100,
-                      ),
+                Flexible(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pokemon.name,
+                          overflow: TextOverflow.clip,
+                          style: GoogleFonts.lato(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        ),
+                        Row(
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.only(left: 8),
+                                child: Text(
+                                  '#${pokemon.descritibleId}',
+                                  style: GoogleFonts.arsenal(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white.withOpacity(0.6),
+                                  ),
+                                )),
+                            Row(
+                              children: pokemon.types
+                                  ?.map((type) => PokeTypes(type: type))
+                                  ?.toList(),
+                            )
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  Flexible(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            pokemon.name,
-                            overflow: TextOverflow.clip,
-                            style: GoogleFonts.lato(
-                                fontSize: 40,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white),
-                          ),
-                          Row(
-                            children: [
-                              Padding(
-                                  padding: EdgeInsets.only(left: 8),
-                                  child: Text(
-                                    '#${pokemon.descritibleId}',
-                                    style: GoogleFonts.arsenal(
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white.withOpacity(0.6),
-                                    ),
-                                  )),
-                              Row(
-                                children: pokemon.types
-                                    ?.map((type) => PokeTypes(type: type))
-                                    ?.toList(),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 

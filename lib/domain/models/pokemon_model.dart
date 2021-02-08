@@ -1,10 +1,11 @@
 import 'package:equatable/equatable.dart';
 
-class PokemonModel extends Equatable implements Comparable{
+class PokemonModel extends Equatable implements Comparable {
   final int id;
   final String name;
   final String image;
   final List types;
+  final List stats;
   final num height;
   final num weight;
 
@@ -15,19 +16,14 @@ class PokemonModel extends Equatable implements Comparable{
     this.types,
     this.height,
     this.weight,
+    this.stats,
   });
 
   @override
-  List<Object> get props => [
-        id,
-        name,
-        types,
-        weight,
-        height,
-      ];
+  List<Object> get props => [id, name, types, weight, height, stats];
 
   @override
   int compareTo(other) {
-     return  id - other.id;
+    return id - other.id;
   }
 }

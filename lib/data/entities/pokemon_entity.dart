@@ -10,6 +10,7 @@ class PokemonEntity extends PokemonModel {
       @required double height,
       @required double weight,
       @required List types,
+      @required List stats,
       @required this.url})
       : super(
           id: id ?? resolveIdByUrl(url),
@@ -17,6 +18,7 @@ class PokemonEntity extends PokemonModel {
           height: height,
           weight: weight,
           types: types,
+          stats: stats,
         );
 
   factory PokemonEntity.fromJson(Map<String, dynamic> json) {
@@ -27,6 +29,7 @@ class PokemonEntity extends PokemonModel {
       height: (json['height'] as num)?.toDouble(),
       weight: (json['weight'] as num)?.toDouble(),
       types: json['types'] as List,
+      stats: json['stats'] as List,
     );
   }
 
@@ -36,6 +39,7 @@ class PokemonEntity extends PokemonModel {
         'height': this.height,
         'weight': this.weight,
         'types': this.types,
+        'stats': this.stats
       };
 }
 

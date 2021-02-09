@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildSeparator() {
     return IgnorePointer(
         child: Container(
-      height: 35,
+      height: 25,
       decoration: BoxDecoration(
         gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -146,11 +146,15 @@ class _HomePageState extends State<HomePage> {
     if (!filterOpen) {
       return Container();
     }
+
+    final filterController = TextEditingController();
+
     return Padding(
         padding: EdgeInsets.all(16),
         child: Container(
-          height: 35,
+          height: 40,
           child: TextField(
+            controller: filterController,
             style: TextStyle(fontSize: 16, height: 0.8),
             expands: false,
             decoration: InputDecoration(
@@ -166,6 +170,18 @@ class _HomePageState extends State<HomePage> {
                 FontAwesome.search,
                 color: Colors.grey.shade400,
                 size: 15,
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  FontAwesome.close,
+                  color: Colors.grey.shade400,
+                  size: 15,
+                ),
+                onPressed: () {
+                  filterController.text = '';
+                  _homeBloc.dispatchOn<HomeEvent>(LoadPokemonByNameOrId(''),
+                      key: _homeBloc.eventKey);
+                },
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.grey.shade100),
@@ -255,7 +271,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildError() {
-    return Text("Ops, couldn't load your pokemon.");
+    return Center(
+        child: Text(
+      "Ops, couldn't load your pokemon.",
+      style: GoogleFonts.lato(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.red.shade300),
+    ));
   }
 
   Widget _buildPokemonList(List<PokemonPresentation> pokemons) {

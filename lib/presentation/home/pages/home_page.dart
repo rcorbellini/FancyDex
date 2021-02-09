@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white.withOpacity(opacity),
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
         actions: <Widget>[
           IconButton(
               icon: Icon(
-                Icons.filter_list,
+                FontAwesome.filter,
                 color: filterOpen ? Colors.blueGrey.shade100 : Colors.blueGrey,
               ),
               onPressed: () {
@@ -101,14 +101,29 @@ class _HomePageState extends State<HomePage> {
         children: [
           _buildFilterByNameOrId(),
           _filterByType(),
-          Container(
-            height: 1,
-            color: Colors.grey.shade100,
-          ),
-          _buildMainContent(),
+          Expanded(
+              child: Stack(
+            children: [
+              _buildMainContent(),
+              _buildSeparator(),
+            ],
+          ))
         ],
       ),
     );
+  }
+
+  Widget _buildSeparator() {
+    return IgnorePointer(
+        child: Container(
+      height: 35,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Colors.white.withOpacity(0)]),
+      ),
+    ));
   }
 
   Widget _buildRandomPokemon() {
@@ -203,8 +218,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMainContent() {
-    return Expanded(
-        child: StreamBuilder(
+    return StreamBuilder(
       initialData: ListLoading(),
       stream: _homeBloc.streamOf<HomeStatus>(key: _homeBloc.statusKey),
       builder: (context, snapshot) {
@@ -223,7 +237,7 @@ class _HomePageState extends State<HomePage> {
           ],
         );
       },
-    ));
+    );
   }
 
   Widget _buildLoading(bool loading) {
@@ -241,7 +255,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildError() {
-    return Text('Erro aconteceu! tente novamente com internet.');
+    return Text("Ops, couldn't load your pokemon.");
   }
 
   Widget _buildPokemonList(List<PokemonPresentation> pokemons) {

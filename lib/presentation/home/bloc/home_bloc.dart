@@ -25,16 +25,10 @@ class HomeBloc extends BaseBloc<HomeEvent> {
 
   HomeBloc({@required this.pokemonRepository, Fancy fancy}) : super(fancy);
 
-  @override
-  void init() {
-    super.init();
-
-    listenOn<HomeEvent>(_dispatchLoading, key: eventKey);
-  }
-
   @protected
   @override
   Future<void> handleEvents(HomeEvent homeEvent) async {
+    _dispatchLoading();
     if (homeEvent is LoadPokemonByNameOrId) {
       return _loadPokemonByNameOrId(homeEvent.query);
     } else if (homeEvent is RandomPokemon) {
@@ -50,6 +44,10 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   /// Handler Events session
   ///---------------
   void _loadPokemonByNameOrId(String query) async {
+    if (query.trim().isEmpty) {
+      _dispatchPokemons(ListLoaded(lastStatePokemonsLoaded));
+      return;
+    }
     final result = _isNumeric(query)
         ? await pokemonRepository.getPokemonById(int.parse(query))
         : await pokemonRepository.getPokemonByName(query);
@@ -115,7 +113,7 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   void _dispatchError(Error _) =>
       _dispatchStatus(ListError(lastPokemonsLoaded: lastStatePokemonsLoaded));
 
-  void _dispatchLoading([HomeEvent _]) =>
+  void _dispatchLoading() =>
       _dispatchStatus(ListLoading(lastPokemonsLoaded: lastStatePokemonsLoaded));
 
   void _dispatchPokemonFound(PokemonModel pokemonModel) =>

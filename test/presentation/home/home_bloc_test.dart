@@ -11,6 +11,7 @@ import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
 import 'package:fancy_stream/fancy_stream.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../data/data_source/pokemon_json.dart';
 
@@ -18,16 +19,32 @@ class PokemonRepositoryMock extends Mock implements PokemonRepository {}
 
 class FancyMock extends Mock implements Fancy {}
 
+class StreamMock<T> extends Mock implements ValueStream<T> {}
+
+///init already test in base bloc
+class HomeBlocByPassInit extends HomeBloc {
+  HomeBlocByPassInit({PokemonRepository pokemonRepository, Fancy fancy})
+      : super(pokemonRepository: pokemonRepository, fancy: fancy);
+
+  @override
+  void init() {
+    ///do nothing here
+  }
+}
+
 void main() {
   PokemonRepositoryMock pokemonRepositoryMock;
   FancyMock fancyMock;
   HomeBloc homeBloc;
+  StreamMock<HomeEvent> stream;
 
   setUp(() {
     fancyMock = FancyMock();
+    stream = StreamMock<HomeEvent>();
     pokemonRepositoryMock = PokemonRepositoryMock();
-    homeBloc =
-        HomeBloc(pokemonRepository: pokemonRepositoryMock, fancy: fancyMock);
+
+    homeBloc = HomeBlocByPassInit(
+        pokemonRepository: pokemonRepositoryMock, fancy: fancyMock);
   });
 
   test('should call handleEvent when event are dispatched', () async {
@@ -44,10 +61,15 @@ void main() {
   group('PokemonRandom evt:', () {
     final evt = RandomPokemon();
     final pokemonEntity = PokemonEntity.fromJson(json.decode(pokemonJsonDitto));
-    final pokemonsPresentation = [PokemonPresentation.fromModel(pokemonEntity)];
+    final pokemonPresentation = PokemonPresentation.fromModel(pokemonEntity);
+    final pokemonsPresentation = [pokemonPresentation];
+    final statusList = ListLoaded(pokemonsPresentation);
+    final statusKey = 'status';
 
     test('when dispatched event, repository must be called', () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getRandomPokemon())
           .thenAnswer((_) async => Right(pokemonEntity));
 
@@ -62,6 +84,8 @@ void main() {
         'when dispatched event, loading + loaded must be dispatched (with repository success)',
         () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getRandomPokemon())
           .thenAnswer((_) async => Right(pokemonEntity));
 
@@ -70,9 +94,11 @@ void main() {
 
       //assert
       verifyInOrder([
-        fancyMock.listenOn(homeBloc.handleEvents),
-        fancyMock.dispatchOn<HomeStatus>(ListLoading()),
-        fancyMock.dispatchOn<HomeStatus>(ListLoaded(pokemonsPresentation))
+        fancyMock.dispatchOn<HomeStatus>(
+            ListLoading(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key')),
+        fancyMock.dispatchOn<HomeStatus>(PokemonFound(pokemonPresentation),
+            key: anyNamed('key'))
       ]);
     });
 
@@ -80,6 +106,8 @@ void main() {
         'when dispatched event, list loading + error must be dispatched (with repository error)',
         () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getRandomPokemon())
           .thenAnswer((_) async => Left(RemoteError()));
 
@@ -89,9 +117,12 @@ void main() {
       //assert
       verify(pokemonRepositoryMock.getRandomPokemon());
       verifyInOrder([
-        fancyMock.listenOn(homeBloc.handleEvents),
-        fancyMock.dispatchOn<HomeStatus>(ListLoading()),
-        fancyMock.dispatchOn<HomeStatus>(ListError())
+        fancyMock.dispatchOn<HomeStatus>(
+            ListLoading(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key')),
+        fancyMock.dispatchOn<HomeStatus>(
+            ListError(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key'))
       ]);
     });
   });
@@ -100,10 +131,15 @@ void main() {
     final name = 'ditto';
     final evt = LoadPokemonByNameOrId(name);
     final pokemonEntity = PokemonEntity.fromJson(json.decode(pokemonJsonDitto));
-    final pokemonsPresentation = [PokemonPresentation.fromModel(pokemonEntity)];
+    final pokemonPresentation = PokemonPresentation.fromModel(pokemonEntity);
+    final pokemonsPresentation = [pokemonPresentation];
+    final statusList = ListLoaded(pokemonsPresentation);
+    final statusKey = 'status';
 
     test('when dispatched event, repository must be called', () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getPokemonByName(name))
           .thenAnswer((_) async => Right(pokemonEntity));
 
@@ -118,6 +154,8 @@ void main() {
         'when dispatched event, loading + loaded must be dispatched (with repository success)',
         () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getPokemonByName(name))
           .thenAnswer((_) async => Right(pokemonEntity));
 
@@ -126,9 +164,11 @@ void main() {
 
       //assert
       verifyInOrder([
-        fancyMock.listenOn(homeBloc.handleEvents),
-        fancyMock.dispatchOn<HomeStatus>(ListLoading()),
-        fancyMock.dispatchOn<HomeStatus>(ListLoaded(pokemonsPresentation))
+        fancyMock.dispatchOn<HomeStatus>(
+            ListLoading(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key')),
+        fancyMock.dispatchOn<HomeStatus>(PokemonFound(pokemonPresentation),
+            key: anyNamed('key'))
       ]);
     });
 
@@ -136,6 +176,8 @@ void main() {
         'when dispatched event, list loading + error must be dispatched (with repository error)',
         () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getPokemonByName(name))
           .thenAnswer((_) async => Left(RemoteError()));
 
@@ -144,9 +186,12 @@ void main() {
 
       //assert
       verifyInOrder([
-        fancyMock.listenOn(homeBloc.handleEvents),
-        fancyMock.dispatchOn<HomeStatus>(ListLoading()),
-        fancyMock.dispatchOn<HomeStatus>(ListError())
+        fancyMock.dispatchOn<HomeStatus>(
+            ListLoading(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key')),
+        fancyMock.dispatchOn<HomeStatus>(
+            ListError(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key'))
       ]);
     });
   });
@@ -157,14 +202,16 @@ void main() {
         json.decode(pokemonsJsonsOffset0Limit20)['results'] as Iterable;
     final pokemonsEntity =
         result.map((pokemonMap) => PokemonEntity.fromJson(pokemonMap)).toList();
-    final pokemonsPresentation =
-    pokemonsEntity
+    final pokemonsPresentation = pokemonsEntity
         .map((pokemonModel) => PokemonPresentation.fromModel(pokemonModel))
         .toList();
-
+    final statusList = ListLoaded(pokemonsPresentation);
+    final statusKey = 'status';
 
     test('when dispatched event, repository must be called', () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getAllPaged(
               offset: anyNamed('offset'), limit: anyNamed('limit')))
           .thenAnswer((_) async => Right(pokemonsEntity));
@@ -181,6 +228,8 @@ void main() {
         'when dispatched event, loading + loaded must be dispatched (with repository success)',
         () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getAllPaged(
               offset: anyNamed('offset'), limit: anyNamed('limit')))
           .thenAnswer((_) async => Right(pokemonsEntity));
@@ -200,6 +249,8 @@ void main() {
         'when dispatched event, list loading + error must be dispatched (with repository error)',
         () async {
       //arrange
+      when(fancyMock.map).thenAnswer(
+          (realInvocation) => <String, dynamic>{statusKey: statusList});
       when(pokemonRepositoryMock.getAllPaged(
               offset: anyNamed('offset'), limit: anyNamed('limit')))
           .thenAnswer((_) async => Left(RemoteError()));
@@ -209,9 +260,12 @@ void main() {
 
       //assert
       verifyInOrder([
-        fancyMock.listenOn(homeBloc.handleEvents),
-        fancyMock.dispatchOn<HomeStatus>(ListLoading()),
-        fancyMock.dispatchOn<HomeStatus>(ListError())
+        fancyMock.dispatchOn<HomeStatus>(
+            ListLoading(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key')),
+        fancyMock.dispatchOn<HomeStatus>(
+            ListError(lastPokemonsLoaded: pokemonsPresentation),
+            key: anyNamed('key'))
       ]);
     });
   });

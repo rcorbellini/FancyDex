@@ -4,7 +4,7 @@ import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
 abstract class HomeStatus extends Equatable {}
 
 //status to search
-class PokemonFound extends Equatable {
+class PokemonFound extends HomeStatus {
   final PokemonPresentation pokemon;
 
   PokemonFound(this.pokemon);

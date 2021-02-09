@@ -10,12 +10,10 @@ abstract class BaseBloc<Event> extends FancyDelegate {
     init();
   }
 
-
-
   void init() {
     final stream = streamOf<Event>(key: eventKey) as ValueStream<Event>;
-    _sbEvents = stream.debounceTime(Duration(milliseconds: 150)).listen(handleEvents);
-
+    _sbEvents =
+        stream.debounceTime(Duration(milliseconds: 500)).listen(handleEvents);
   }
 
   @override

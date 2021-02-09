@@ -39,22 +39,22 @@ class PokemonPresentation extends PokemonModel {
     final descritibleId = model.id.toString().padLeft(3, '0');
 
     final typesNames =
-        (model.types.map((type) => type['type']['name']).toList());
+        (model?.types?.map((type) => type['type']['name'])?.toList() ?? []);
 
     final types = typesNames
         .map((typeName) => {'name': typeName, 'color': allTypeColors[typeName]})
         .toList();
 
-    final height = model.height / 10;
+    final height = model.height ?? 10 / 10;
 
-    final weight = model.weight / 10;
+    final weight = model.weight ?? 10 / 10;
 
-    final List<Map<String, dynamic>> statsList = model.stats
-        .map((st) => <String, dynamic>{
+    final List<Map<String, dynamic>> statsList = model?.stats
+        ?.map((st) => <String, dynamic>{
               'name': st['stat']['name'],
               'value': st['base_stat']
             })
-        .toList();
+        ?.toList();
 
     return PokemonPresentation(
       imageUrl: imageUrl,

@@ -27,11 +27,9 @@ void main() {
 
   test('should listen event when created', () async {
     //arrange
-    final stream = StreamMock<HomeEvent>()
+    final stream = StreamMock<HomeEvent>();
 
-    //todo ajustar
     when(fancyMock.streamOf(key: anyNamed('key'))).thenAnswer((_) => stream);
-    when(stream.debounceTime(any)).thenAnswer((_) => stream);
     when(stream.transform(any)).thenAnswer((_) => stream);
     when(stream.listen(any)).thenAnswer((_) => null);
 
@@ -39,6 +37,6 @@ void main() {
     final homeBlocTest = DummyBloc(fancyMock);
     //assert
     verify(fancyMock.streamOf(key: anyNamed('key')));
-    //verify(stream.listen(homeBlocTest.handleEvents));
+    verify(stream.listen(homeBlocTest.handleEvents));
   });
 }

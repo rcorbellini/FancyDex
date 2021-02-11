@@ -38,18 +38,18 @@ class FilterGetPokemon extends Equatable {
 
   FilterGetPokemon.byName(String name)
       : this.pokemonName = name,
-        random = false,
-        pokemonId = null;
+        this.random = false,
+        this.pokemonId = null;
 
   FilterGetPokemon.byId(int id)
       : this.pokemonName = null,
-        random = false,
-        pokemonId = id;
+        this.random = false,
+        this.pokemonId = id;
 
   FilterGetPokemon.byRandom()
       : this.pokemonName = null,
-        random = true,
-        pokemonId = null;
+        this.random = true,
+        this.pokemonId = null;
 
   @override
   List<Object> get props => [pokemonId, pokemonName, random];

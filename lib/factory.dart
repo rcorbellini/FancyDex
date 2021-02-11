@@ -19,7 +19,7 @@ import 'package:http/http.dart' as http;
 
 ///Blocs
 HomeBloc get newInstanceHomeBloc =>
-    HomeBloc(fancy: FancyImp(), getAllPokemonUseCase: newInstanceGetAllUseCase);
+    HomeBloc(fancy: FancyImp(), getAllPokemonUseCase: newInstanceGetAllUseCase, getPokemonUseCase: newInstanceGetPokemonUseCase);
 DetailBloc get newInstaceDetailBloc => DetailBloc(
     fancy: FancyImp(), getPokemonUseCase: newInstanceGetPokemonUseCase);
 

@@ -4,6 +4,8 @@ import 'package:dartz/dartz.dart';
 import 'package:fancy_dex/core/errors/errors.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
+import 'package:fancy_dex/domain/use_cases/get_all_pokemon_use_case.dart';
+import 'package:fancy_dex/domain/use_cases/get_pokemon_use_case.dart';
 import 'package:fancy_dex/presentation/detail/bloc/detail_status.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_bloc.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
@@ -18,14 +20,24 @@ import '../../data/data_source/pokemon_json.dart';
 
 class PokemonRepositoryMock extends Mock implements PokemonRepository {}
 
+class GetPokemonUseCaseMock extends Mock implements GetPokemonUseCase {}
+
+class GetAllPokemonUseCaseMock extends Mock implements GetAllPokemonUseCase {}
+
 class FancyMock extends Mock implements Fancy {}
 
 class StreamMock<T> extends Mock implements ValueStream<T> {}
 
 ///init already test in base bloc
 class HomeBlocByPassInit extends HomeBloc {
-  HomeBlocByPassInit({PokemonRepository pokemonRepository, Fancy fancy})
-      : super(pokemonRepository: pokemonRepository, fancy: fancy);
+  HomeBlocByPassInit(
+      {GetPokemonUseCase getPokemonUseCase,
+      GetAllPokemonUseCase getAllPokemonUseCase,
+      Fancy fancy})
+      : super(
+            getPokemonUseCase: getPokemonUseCase,
+            getAllPokemonUseCase: getAllPokemonUseCase,
+            fancy: fancy);
 
   @override
   void init() {
@@ -35,17 +47,23 @@ class HomeBlocByPassInit extends HomeBloc {
 
 void main() {
   PokemonRepositoryMock pokemonRepositoryMock;
+  GetPokemonUseCaseMock getPokemonUseCaseMock;
+  GetAllPokemonUseCaseMock getAllPokemonUseCaseMock;
   FancyMock fancyMock;
   HomeBloc homeBloc;
   StreamMock<HomeEvent> stream;
 
   setUp(() {
     fancyMock = FancyMock();
+    getPokemonUseCaseMock = GetPokemonUseCaseMock();
+    getAllPokemonUseCaseMock = GetAllPokemonUseCaseMock();
     stream = StreamMock<HomeEvent>();
     pokemonRepositoryMock = PokemonRepositoryMock();
 
     homeBloc = HomeBlocByPassInit(
-        pokemonRepository: pokemonRepositoryMock, fancy: fancyMock);
+        getPokemonUseCase: getPokemonUseCaseMock,
+        getAllPokemonUseCase: getAllPokemonUseCaseMock,
+        fancy: fancyMock);
   });
 
   test('should call handleEvent when event are dispatched', () async {

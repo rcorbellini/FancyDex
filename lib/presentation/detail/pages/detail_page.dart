@@ -34,7 +34,7 @@ class _DetailPageState extends State<DetailPage>
     dispatchLoadingInitalPokemon();
 
     controller =
-        AnimationController(duration: const Duration(seconds: 2), vsync: this);
+        AnimationController(duration: const Duration(seconds: 5), vsync: this);
     animation = Tween<double>(begin: 0, end: 100).animate(controller);
     controller.forward();
 

@@ -95,7 +95,7 @@ class _HomePageState extends State<HomePage> {
               })
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: _buildRandomPokemon(),
       body: Column(
         mainAxisSize: MainAxisSize.max,

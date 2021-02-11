@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:fancy_dex/core/errors/errors.dart';
 import 'package:fancy_dex/core/utils/constants.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
-import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
 import 'package:fancy_dex/core/architecture/base_bloc.dart';
+import 'package:fancy_dex/domain/use_cases/get_all_pokemon_use_case.dart';
+import 'package:fancy_dex/domain/use_cases/get_pokemon_use_case.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_status.dart';
 import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
@@ -12,7 +13,9 @@ import 'package:fancy_stream/fancy_stream.dart';
 import 'package:flutter/foundation.dart';
 
 class HomeBloc extends BaseBloc<HomeEvent> {
-  final PokemonRepository pokemonRepository;
+  final GetPokemonUseCase getPokemonUseCase;
+  final GetAllPokemonUseCase getAllPokemonUseCase;
+
   //Default list status
   final statusKey = 'status';
 
@@ -23,7 +26,11 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   //random & serach by NameOrId
   final pokemonFoundStatus = 'pokemon_found_stat';
 
-  HomeBloc({@required this.pokemonRepository, Fancy fancy}) : super(fancy);
+  HomeBloc(
+      {@required this.getAllPokemonUseCase,
+      @required this.getPokemonUseCase,
+      Fancy fancy})
+      : super(fancy);
 
   @protected
   @override
@@ -48,15 +55,18 @@ class HomeBloc extends BaseBloc<HomeEvent> {
       _dispatchPokemons(ListLoaded(lastStatePokemonsLoaded));
       return;
     }
-    final result = _isNumeric(query)
-        ? await pokemonRepository.getPokemonById(int.parse(query))
-        : await pokemonRepository.getPokemonByName(query);
+    final filter = _isNumeric(query)
+        ? FilterGetPokemon.byId(int.parse(query))
+        : FilterGetPokemon.byName(query);
+
+    final result = await getPokemonUseCase.call(params: filter);
 
     result.fold(_dispatchError, _dispatchPokemonFound);
   }
 
   void _loadRandomPokemon() async {
-    final result = await pokemonRepository.getRandomPokemon();
+    final result =
+        await getPokemonUseCase.call(params: FilterGetPokemon.byRandom());
     result.fold(_dispatchError, _dispatchPokemonFound);
   }
 
@@ -94,8 +104,8 @@ class HomeBloc extends BaseBloc<HomeEvent> {
   void _loadMorePokemons() async {
     final limit = 20;
     final offset = lastStatePokemonsLoaded.length;
-    final result =
-        await pokemonRepository.getAllPaged(offset: offset, limit: limit);
+    final result = await getAllPokemonUseCase.call(
+        params: ParamGetAllPokemonPagged(offset: offset, limit: limit));
 
     result.fold(_dispatchError, _dispatchListPokemons);
   }

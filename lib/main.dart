@@ -40,4 +40,10 @@ class _MyAppState extends State<MyApp> {
       ),
     ));
   }
+
+  @override
+  void dispose() {
+    _bloc?.dispose();
+    super.dispose();
+  }
 }

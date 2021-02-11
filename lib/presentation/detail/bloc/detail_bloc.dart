@@ -4,6 +4,8 @@ import 'package:fancy_dex/core/errors/errors.dart';
 import 'package:fancy_dex/domain/models/pokemon_model.dart';
 import 'package:fancy_dex/domain/repositories/pokemon_repository.dart';
 import 'package:fancy_dex/core/architecture/base_bloc.dart';
+import 'package:fancy_dex/domain/use_cases/get_all_pokemon_use_case.dart';
+import 'package:fancy_dex/domain/use_cases/get_pokemon_use_case.dart';
 import 'package:fancy_dex/presentation/detail/bloc/detail_event.dart';
 import 'package:fancy_dex/presentation/detail/bloc/detail_status.dart';
 import 'package:fancy_dex/presentation/home/bloc/home_event.dart';
@@ -13,10 +15,10 @@ import 'package:fancy_stream/fancy_stream.dart';
 import 'package:flutter/foundation.dart';
 
 class DetailBloc extends BaseBloc<DetailEvent> {
-  final PokemonRepository pokemonRepository;
+  final GetPokemonUseCase getPokemonUseCase;
   final statusKey = 'status';
 
-  DetailBloc({@required this.pokemonRepository, Fancy fancy}) : super(fancy);
+  DetailBloc({@required this.getPokemonUseCase, Fancy fancy}) : super(fancy);
 
   @override
   void init() {
@@ -36,7 +38,8 @@ class DetailBloc extends BaseBloc<DetailEvent> {
   /// Handler Events session
   ///---------------
   void _loadPokemonById(int id) async {
-    final result = await pokemonRepository.getPokemonById(id);
+    final result =
+        await getPokemonUseCase.call(params: FilterGetPokemon(pokemonId: id));
 
     result.fold(_dispatchError, _dispatchPokemon);
   }
@@ -44,17 +47,14 @@ class DetailBloc extends BaseBloc<DetailEvent> {
   ///-----------------
   /// Dispatch Session
   ///-----------------
-  void _dispatchError(Error _) =>
-      _dispatchStatus(PokemonError());
+  void _dispatchError(Error _) => _dispatchStatus(PokemonError());
 
-  void _dispatchLoading([DetailEvent _]) =>
-      _dispatchStatus(PokemonLoading());
+  void _dispatchLoading([DetailEvent _]) => _dispatchStatus(PokemonLoading());
 
   void _dispatchPokemon(PokemonModel pokemonModel) {
-    final pokemonPresentation =  PokemonPresentation.fromModel(pokemonModel);
+    final pokemonPresentation = PokemonPresentation.fromModel(pokemonModel);
 
-    _dispatchStatus(
-        PokemonLoaded(pokemon: pokemonPresentation));
+    _dispatchStatus(PokemonLoaded(pokemon: pokemonPresentation));
   }
 
   void _dispatchStatus(DetailStatus status) =>

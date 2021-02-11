@@ -21,6 +21,8 @@ class GetPokemonUseCase implements UseCase<FilterGetPokemon, PokemonModel> {
       return pokemonRepository.getPokemonById(params.pokemonId);
     } else if (params.pokemonName != null) {
       return pokemonRepository.getPokemonByName(params.pokemonName);
+    } else if (params.random) {
+      return pokemonRepository.getRandomPokemon();
     }
 
     throw ArgumentError("pokemonName Or pokemonId must not be null");
@@ -30,12 +32,25 @@ class GetPokemonUseCase implements UseCase<FilterGetPokemon, PokemonModel> {
 class FilterGetPokemon extends Equatable {
   final String pokemonName;
   final int pokemonId;
+  final bool random;
 
-  FilterGetPokemon({this.pokemonId, this.pokemonName});
+  FilterGetPokemon({this.pokemonId, this.pokemonName, this.random = false});
+
+  FilterGetPokemon.byName(String name)
+      : this.pokemonName = name,
+        random = false,
+        pokemonId = null;
+
+  FilterGetPokemon.byId(int id)
+      : this.pokemonName = null,
+        random = false,
+        pokemonId = id;
+
+  FilterGetPokemon.byRandom()
+      : this.pokemonName = null,
+        random = true,
+        pokemonId = null;
 
   @override
-  List<Object> get props => [
-        pokemonId,
-        pokemonName,
-      ];
+  List<Object> get props => [pokemonId, pokemonName, random];
 }

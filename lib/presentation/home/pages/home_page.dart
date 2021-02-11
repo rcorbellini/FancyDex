@@ -9,6 +9,7 @@ import 'package:fancy_dex/data/data_sources/pokemon_cache_data_source.dart';
 import 'package:fancy_dex/data/data_sources/pokemon_remote_data_source.dart';
 import 'package:fancy_dex/data/entities/pokemon_entity.dart';
 import 'package:fancy_dex/data/repositories/pokemon_repository_imp.dart';
+import 'package:fancy_dex/factory.dart';
 import 'package:fancy_dex/presentation/detail/bloc/detail_bloc.dart';
 import 'package:fancy_dex/presentation/detail/pages/detail_page.dart';
 import 'package:fancy_dex/presentation/models/pokemon_presentation.dart';
@@ -405,6 +406,11 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Widget getDetailPage(PokemonPresentation pokemon) => DetailPage(
+        id: pokemon.id,
+        detailBloc: newInstaceDetailBloc,
+      );
+
   @override
   void dispose() {
     _homeBloc?.dispose();
@@ -412,18 +418,3 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 }
-
-//todo mover para DI
-Widget getDetailPage(PokemonPresentation pokemon) => DetailPage(
-      id: pokemon.id,
-      detailBloc: DetailBloc(
-        fancy: FancyImp(),
-        pokemonRepository: PokemonRepositoryImp(
-            networkStatus: NetworkStatusImp(DataConnectionChecker()),
-            random: Random(),
-            pokemonCacheDataSource:
-                PokemonCacheDataSourceImp(SortedCacheMemory<PokemonEntity>()),
-            pokemonRemoteDataSource:
-                PokemonRemoteDataSourceImpl(client: http.Client())),
-      ),
-    );

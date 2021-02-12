@@ -16,7 +16,9 @@ Layout inspired on [Pokedex By Bruna Campos](https://dribbble.com/shots/14241781
 
 
 ![screens_fancy](https://user-images.githubusercontent.com/151217/107714940-f1b0c280-6cac-11eb-9bb0-9cfa00d0a5b7.png)
-
+<p align="center">
+<img src="https://media.giphy.com/media/vdIY35CdQ123Yccn0D/giphy.gif" align="center" width="216"  height="480" />
+</p>
 
 
 ## Architecture
@@ -29,7 +31,7 @@ Layout inspired on [Pokedex By Bruna Campos](https://dribbble.com/shots/14241781
 ### Detail
 ![detail_event_state](https://user-images.githubusercontent.com/151217/107593760-e4cd9980-6bee-11eb-9aff-15f71a8b8a3d.jpg)
 
-
+ 
 
 ## The Todo List
 - [ ] Object (Blocs) Must Be Injected by some DI.

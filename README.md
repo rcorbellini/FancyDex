@@ -18,8 +18,6 @@ Layout inspired on [Pokedex By Bruna Campos](https://dribbble.com/shots/14241781
 ![screens_fancy](https://user-images.githubusercontent.com/151217/107714940-f1b0c280-6cac-11eb-9bb0-9cfa00d0a5b7.png)
 
 
-<iframe width="768" height="432" src="https://miro.com/app/live-embed/o9J_lWHUiOo=/?moveToViewport=1506,-1642,5164,3486" frameBorder="0" scrolling="no" allowFullScreen></iframe>
-
 ## The Todo List
 - [ ] Object (Blocs) Must Be Injected by some DI.
 - [ ] Button to relad when erro happen.

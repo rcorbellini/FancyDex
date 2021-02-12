@@ -4,13 +4,11 @@ abstract class NetworkStatus {
   Future<bool> get isConnected;
 }
 
-class NetworkStatusImp extends NetworkStatus{
-
+class NetworkStatusImp extends NetworkStatus {
   final DataConnectionChecker connectionChecker;
 
   NetworkStatusImp(this.connectionChecker);
 
   @override
   Future<bool> get isConnected => connectionChecker.hasConnection;
-
 }

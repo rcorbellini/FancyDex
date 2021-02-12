@@ -5,11 +5,6 @@ abstract class Error extends Equatable {
   List<Object> get props => [];
 }
 
+class RemoteError extends Error {}
 
-class RemoteError extends Error{
-
-}
-
-class CacheError extends Error{
-
-}
+class CacheError extends Error {}

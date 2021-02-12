@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:rxdart/rxdart.dart';
 import 'package:fancy_stream/fancy_stream.dart';
+import 'package:rxdart/rxdart.dart';
 
 abstract class BaseBloc<Event> extends FancyDelegate {
   final eventKey = 'event';

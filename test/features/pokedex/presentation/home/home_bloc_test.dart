@@ -46,7 +46,6 @@ class HomeBlocByPassInit extends HomeBloc {
 }
 
 void main() {
-  PokemonRepositoryMock pokemonRepositoryMock;
   GetPokemonUseCaseMock getPokemonUseCaseMock;
   GetAllPokemonUseCaseMock getAllPokemonUseCaseMock;
   FancyMock fancyMock;
@@ -58,7 +57,6 @@ void main() {
     getPokemonUseCaseMock = GetPokemonUseCaseMock();
     getAllPokemonUseCaseMock = GetAllPokemonUseCaseMock();
     stream = StreamMock<HomeEvent>();
-    pokemonRepositoryMock = PokemonRepositoryMock();
 
     homeBloc = HomeBlocByPassInit(
         getPokemonUseCase: getPokemonUseCaseMock,
@@ -89,14 +87,14 @@ void main() {
       //arrange
       when(fancyMock.map).thenAnswer(
           (realInvocation) => <String, dynamic>{statusKey: statusList});
-      when(pokemonRepositoryMock.getRandomPokemon())
+      when(getPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Right(pokemonEntity));
 
       //act
       await homeBloc.handleEvents(evt);
 
       //assert
-      verify(pokemonRepositoryMock.getRandomPokemon());
+      verify(getPokemonUseCaseMock.call(params: anyNamed('params')));
     });
 
     test(
@@ -105,7 +103,7 @@ void main() {
       //arrange
       when(fancyMock.map).thenAnswer(
           (realInvocation) => <String, dynamic>{statusKey: statusList});
-      when(pokemonRepositoryMock.getRandomPokemon())
+      when(getPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Right(pokemonEntity));
 
       //act
@@ -127,14 +125,14 @@ void main() {
       //arrange
       when(fancyMock.map).thenAnswer(
           (realInvocation) => <String, dynamic>{statusKey: statusList});
-      when(pokemonRepositoryMock.getRandomPokemon())
+      when(getPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Left(RemoteError()));
 
       //act
       await homeBloc.handleEvents(evt);
 
       //assert
-      verify(pokemonRepositoryMock.getRandomPokemon());
+      verify(getPokemonUseCaseMock.call(params: anyNamed('params')));
       verifyInOrder([
         fancyMock.dispatchOn<HomeStatus>(
             ListLoading(lastPokemonsLoaded: pokemonsPresentation),
@@ -159,14 +157,14 @@ void main() {
       //arrange
       when(fancyMock.map).thenAnswer(
           (realInvocation) => <String, dynamic>{statusKey: statusList});
-      when(pokemonRepositoryMock.getPokemonByName(name))
+      when(getPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Right(pokemonEntity));
 
       //act
       await homeBloc.handleEvents(evt);
 
       //assert
-      verify(pokemonRepositoryMock.getPokemonByName(name));
+      verify(getPokemonUseCaseMock.call(params: anyNamed('params')));
     });
 
     test(
@@ -175,7 +173,7 @@ void main() {
       //arrange
       when(fancyMock.map).thenAnswer(
           (realInvocation) => <String, dynamic>{statusKey: statusList});
-      when(pokemonRepositoryMock.getPokemonByName(name))
+      when(getPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Right(pokemonEntity));
 
       //act
@@ -197,7 +195,7 @@ void main() {
       //arrange
       when(fancyMock.map).thenAnswer(
           (realInvocation) => <String, dynamic>{statusKey: statusList});
-      when(pokemonRepositoryMock.getPokemonByName(name))
+      when(getPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Left(RemoteError()));
 
       //act
@@ -235,16 +233,14 @@ void main() {
             statusKey: statusList,
             statusTypesFiltered: <String>[]
           });
-      when(pokemonRepositoryMock.getAllPaged(
-              offset: anyNamed('offset'), limit: anyNamed('limit')))
+      when(getAllPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Right(pokemonsEntity));
 
       //act
       await homeBloc.handleEvents(evt);
 
       //assert
-      verify(pokemonRepositoryMock.getAllPaged(
-          offset: anyNamed('offset'), limit: anyNamed('limit')));
+      verify(getAllPokemonUseCaseMock.call(params: anyNamed('params')));
     });
 
     test(
@@ -255,8 +251,7 @@ void main() {
             statusKey: statusList,
             statusTypesFiltered: <String>[]
           });
-      when(pokemonRepositoryMock.getAllPaged(
-              offset: anyNamed('offset'), limit: anyNamed('limit')))
+      when(getAllPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Right(pokemonsEntity));
 
       //act
@@ -281,8 +276,7 @@ void main() {
             statusKey: statusList,
             statusTypesFiltered: <String>[]
           });
-      when(pokemonRepositoryMock.getAllPaged(
-              offset: anyNamed('offset'), limit: anyNamed('limit')))
+      when(getAllPokemonUseCaseMock.call(params: anyNamed('params')))
           .thenAnswer((_) async => Left(RemoteError()));
 
       //act
